@@ -1,0 +1,49 @@
+turnovers of power weapons
+damage per life
+nade damage
+rifle (br, dmr, lr, carbine) shots fired
+rifle accuracy
+rifle damage
+distractions
+flag pulls/caps/carrier kills or just obj medal total
+stronghold caps/assists
+kills on top csr percentile of the night, or kills against best opponent in each game
+distance traveled by connecting the dots between kills and deaths
+
+lump random teammates in to "randomTeammate"
+dont bother showing opponents tags
+
+query param gamertags to search for games where they're included
+
+team stats
+	wins
+	losses
+	best streak
+	worst streak
+	average starting csr
+	average ending csr
+	average csr of opponent
+	average csr of wins
+	average csr of losses
+	turnovers on wins
+	opponent turnovers on wins
+	turnovers on losses
+	opponent turnovers on losses
+
+
+stats of teams that beat us
+	highest csr tag
+	average csr
+	kills
+	opponentKills
+	deaths
+	opponentDeaths
+	assists
+	opponentAssists
+	damageDealt
+	opponentDamageDealt
+	pWeaponKills
+	opponentPWeaponKills
+
+	turnovers
+	opponentTurnovers

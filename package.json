@@ -1,0 +1,19 @@
+{
+  "name": "halo-tracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run start-moo",
+    "start-moo": "node index.js 'The Furious Moo'"
+  },
+  "author": "cwebley <cameron.webley@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.15.3",
+    "bottleneck": "^1.15.0",
+    "commander": "^2.9.0",
+    "console.table": "^0.7.0",
+    "request": "^2.79.0"
+  }
+}
