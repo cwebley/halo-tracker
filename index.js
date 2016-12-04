@@ -7,28 +7,6 @@ const events = require('./events');
 const carnage = require('./carnage');
 const async = require('neo-async');
 
-const axios = require('axios');
-
-const HALO_CE_PERFECT_MEDAL_ID = 3992195104;
-const CARBINE_PERFECT_MEDAL_ID = 3098362934;
-const LIGHTRIFLE_PERFECT_MEDAL_ID = 2279899989;
-const DMR_PERFECT_MEDAL_ID = 370413844;
-const MAGNUM_PERFECT_MEDAL_ID = 3653057799;
-const BR_PERFECT_MEDAL_ID = 1080468863;
-
-const FLAG_PULL_IMPULSE_ID = 1039658009;
-const FLAG_CAPPED_IMPULSE_ID = 2944278681;
-const FLAG_RETURNED_IMPULSE_ID = 1063951891;
-const FLAG_PICK_UP_IMPULSE_ID = 4191318012;
-const FLAGNUM_KILLS_IMPULSE_ID = 3514632335;
-const FLAG_CARRIER_KILL_IMPULSE_ID = 2299858338;
-const FLAG_DROP_IMPULSE_ID = 3435524855;
-
-const STRONGHOLD_CAPTURE_ASSIST_MEDAL_ID = 1637841390;
-const STRONGHOLD_SECURED_MEDAL_ID = 2916014239;
-const STRONGHOLD_CAPTURE_MEDAL_ID = 3565443938;
-const STRONGHOLD_DEFENSE_MEDAL_ID = 1351381581;
-
 program
 	.version('1.0.0')
 	.parse(process.argv);
@@ -46,29 +24,7 @@ program.args.forEach(gamertag => {
 	config.set('user', gamertag);
 });
 
-let aggregatedData = {
-	users: {},
-	result: []
-};
-let teamStats = {
-	maps: {
-		total: {
-			totalWins: 0,
-			totalGames: 0,
-			bestStreak: 0,
-			turnoversOnWins: null,
-			turnoversOnLosses: null,
-			avgStaringCSR: null,
-			avgEndingCSR: null,
-			averageOpponentCSR: null,
-			averageOpponentCSRWins: null,
-			averageOpponentCSRLosses: null
-		}
-	},
-	result: ['total']
-};
-
-const fetchAllMatchData = (matchId, carnageReportUrl, friendlyTeamId, cb) => {
+const fetchAllDataForMatch = (matchId, carnageReportUrl, friendlyTeamId, cb) => {
 		carnage.getCarnageReportData(carnageReportUrl, friendlyTeamId, (err, carnageData) => {
 			if (err) {
 				console.error(`Error fetching carnage report for match ${matchId}: ${err}`)
@@ -102,15 +58,77 @@ metadata.getMetadata((err, { maps, medals, impulses, weapons, gameTypes }) => {
 			return;
 		}
 
-		async.parallel(matchesData.map(match => fetchAllMatchData.bind(null, match.Id.MatchId, match.Links.StatsMatchDetails.Path, match.Players[0].TeamId)), (err, allMatchData) => {
+		// for each match of our session, hit the carnage report api and the match events api, and put together some interesting stats
+		async.parallel(matchesData.map(match => fetchAllDataForMatch.bind(null, match.Id.MatchId, match.Links.StatsMatchDetails.Path, match.Players[0].TeamId)), (err, allMatchData) => {
 			if (err) {
 				console.error(`Error fetching carnage reports: ${err}`);
 				process.exit(1);
 				return;
 			}
 			console.log("DONE PARALLEL CARNAGE: ", allMatchData);
+
+
+			let mapStats = {
+				entities: {
+					all: {
+						mapName: 'all',
+						totalWins: 0,
+						totalGames: 0,
+						turnoversOnWins: null,
+						turnoversOnLosses: null
+					}
+				},
+				result: ['all']
+			};
+			allMatchData.forEach(m => {
+				if (!mapStats.entities[m.map]) {
+					mapStats.entities[m.map] = {
+						mapName: m.map,
+						totalWins: 0,
+						totalGames: 0,
+						turnoversOnWins: null,
+						turnoversOnLosses: null,
+					};
+					mapStats.result.push(m.map);
+				}
+				// total up all the turnovers for the friendly team (initial value of 0)
+				const turnovers = Object.keys(m.teams.friendly.ids).reduce((prev, cur) => prev + m.users[cur].turnovers, 0);
+
+				mapStats.entities.all.totalGames++;
+				mapStats.entities[m.map].totalGames++;
+
+				if (m.teams.friendly.win) {
+					mapStats.entities.all.totalWins++
+					if (!mapStats.entities.all.turnoversOnWins) {
+						mapStats.entities.all.turnoversOnWins = 0;
+					}
+					mapStats.entities.all.turnoversOnWins += turnovers;
+
+					mapStats.entities[m.map].totalWins++
+					if (!mapStats.entities[m.map].turnoversOnWins) {
+						mapStats.entities[m.map].turnoversOnWins = 0;
+					}
+					mapStats.entities[m.map].turnoversOnWins += turnovers;
+				} else {
+					if (!mapStats.entities.all.turnoversOnLosses) {
+						mapStats.entities.all.turnoversOnLosses = 0;
+					}
+					mapStats.entities.all.turnoversOnLosses += turnovers;
+
+					if (!mapStats.entities[m.map].turnoversOnLosses) {
+						mapStats.entities[m.map].turnoversOnLosses = 0;
+					}
+					mapStats.entities[m.map].turnoversOnLosses += turnovers;
+				}
+			});
+			console.table(mapStats.result.map(m => mapStats.entities[m]))
 		});
 
+		// avgStaringCSR: null,
+		// avgEndingCSR: null,
+		// averageOpponentCSR: null,
+		// averageOpponentCSRWins: null,
+		// averageOpponentCSRLosses: null
 		// 			if (!aggregatedData.users[currentUser]) {
 		// 				aggregatedData.users[currentUser] = {
 		// 					name: currentUser,
@@ -148,5 +166,5 @@ metadata.getMetadata((err, { maps, medals, impulses, weapons, gameTypes }) => {
 		// 					turnovers: 0
 		// 				};
 
-	})
+	});
 });

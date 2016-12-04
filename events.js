@@ -39,7 +39,7 @@ function processEventData (events, carnageData) {
 					if (futureEvent.EventName === 'WeaponPickup' && futureEvent.WeaponStockId === event.WeaponStockId) {
 						// if the team that picked up the weapon is different than the team that dropped the weapon, its a turnover
 						// TODO work to make this only possible for 30 seconds or something
-						if (carnageData.users[event.Player.Gamertag.friendlyTeamId] !== carnageData.users[futureEvent.Player.Gamertag.friendlyTeamId]) {
+						if (carnageData.users[event.Player.Gamertag].friendlyTeam !== carnageData.users[futureEvent.Player.Gamertag].friendlyTeam) {
 							carnageData.users[event.Player.Gamertag].turnovers++
 						}
 						// the weapon was picked up. regardless of turnover status we are done checking future events.
