@@ -3,9 +3,11 @@ require('console.table');
 const config = require('./config');
 const metadata = require('./metadata');
 const matches = require('./matches');
-const axios = require('axios');
+const events = require('./events');
+const carnage = require('./carnage');
+const async = require('neo-async');
 
-const getMatchEventsUrl = matchId => `https://www.haloapi.com/stats/h5/matches/${matchId}/events`;
+const axios = require('axios');
 
 const HALO_CE_PERFECT_MEDAL_ID = 3992195104;
 const CARBINE_PERFECT_MEDAL_ID = 3098362934;
@@ -27,40 +29,9 @@ const STRONGHOLD_SECURED_MEDAL_ID = 2916014239;
 const STRONGHOLD_CAPTURE_MEDAL_ID = 3565443938;
 const STRONGHOLD_DEFENSE_MEDAL_ID = 1351381581;
 
-// loadout weapons to calculate accuracy
-const MAGNUM_WEAPON_ID = 4096745987;
-const AR_WEAPON_ID = 313138863;
-
-// rifles to calculate rifle accuracy
-const LIGHTRIFLE_WEAPON_ID = 2511447508;
-const DMR_WEAPON_ID = 523953283;
-const BATTLE_RIFLE_WEAPON_ID = 424645655;
-const CARBINE_WEAPON_ID = 4108759423;
-const H2_BR_WEAPON_ID = 4222743534;
-
-// power weapons to calculate turnovers
-const ROCKET_LAUNCHER_WEAPON_ID = 723523180;
-const SNIPER_RIFLE_WEAPON_ID = 669296699;
-const PLASMA_CASTER_WEAPON_ID = 4054937266;
-const FUEL_ROD_WEAPON_ID = 2670072722;
-const SAW_WEAPON_ID = 2278207101;
-const SCATTERSHOT_WEAPON_ID = 3808094875;
-const SHOTGUN_WEAPON_ID = 3484334713;
-const SWORD_WEAPON_ID = 2650887244;
-const RAILGUN_WEAPON_ID = 3682788176;
-
 program
 	.version('1.0.0')
 	.parse(process.argv);
-
-const getCarnageReportArena = (url) => {
-	console.log("GCRA: ", url);
-	return axios.get(url, {
-		headers: {
-			'Ocp-Apim-Subscription-Key': config.API_KEY
-		}
-	});
-};
 
 const getMatchEvents = (matchId) => {
 	console.log("getMatchEvents: ", matchId);
@@ -71,36 +42,9 @@ const getMatchEvents = (matchId) => {
 	});
 };
 
-const getCarnageReportAndEvents = (url, matchId, matchInfo) => {
-	return axios.all([
-		limiter.schedule(getCarnageReportArena, url),
-		limiter.schedule(getMatchEvents, matchId)
-	])
-	// returns an object for easier to follow logic
-	.then(axios.spread((carnageResponse, matchEventResponse) => ({
-		carnageReport: carnageResponse.data,
-		matchEvents: matchEventResponse.data.GameEvents,
-		matchInfo
-	})));
-};
-
-const recordedUsers = [...program.args];
-const recordedUserIndex = {};
-recordedUsers.forEach(u => {
-	recordedUserIndex[u] = true;
+program.args.forEach(gamertag => {
+	config.set('user', gamertag);
 });
-
-const getRecordedUsername = (actualName, isTeammate) => {
-	if (recordedUserIndex[actualName]) {
-		// this is a player that we care about as specified in our command line args
-		return actualName;
-	}
-	if (isTeammate) {
-		// hes on our team, so lets track him
-		return 'Random Teammate';
-	}
-	return 'Opponent';
-};
 
 let aggregatedData = {
 	users: {},
@@ -124,260 +68,85 @@ let teamStats = {
 	result: ['total']
 };
 
-const mapIndex = {};
-const medalIndex = {};
-const impulseIndex = {};
-const weaponIndex = {};
+const fetchAllMatchData = (matchId, carnageReportUrl, friendlyTeamId, cb) => {
+		carnage.getCarnageReportData(carnageReportUrl, friendlyTeamId, (err, carnageData) => {
+			if (err) {
+				console.error(`Error fetching carnage report for match ${matchId}: ${err}`)
+				cb(err);
+				return;
+			}
 
-metadata.getMetadata((err, { maps, medals, impulses, weapons }) => {
+			// pass the carnageData in and update it with whatever we can tease out through the matchEvent api
+			events.getEventData(matchId, carnageData, (err, finalMatchData) => {
+				if (err) {
+					console.error(`Error fetching event data for match ${matchId}: ${err}`);
+					cb(err);
+					return;
+				}
+				return cb(null, finalMatchData);
+			});
+		});
+};
+
+metadata.getMetadata((err, { maps, medals, impulses, weapons, gameTypes }) => {
 	if (err) {
-		console.error('Error fetching metadata: ', err);
+		console.error(`Error fetching metadata: ${err}`);
 		process.exit(1);
 		return;
 	}
 
-	// keep dictionary of mapName -> mapId for easy lookups
-	maps.forEach(map => {
-		// there is apparently a null map that just ruins everything
-		if (!map.name) {
+	matches.getMatches(program.args[0], (err, matchesData) => {
+		if (err) {
+			console.error(`Error fetching matches: ${err}`);
+			process.exit(1);
 			return;
 		}
-		mapIndex[map.name] = map.id;
-	});
-	// keep dictionary of medalName -> medalId
-	medals.forEach(medal => {
-		medalIndex[medal.name] = medal.id;
-	});
-	// keep dictionary of impulseName -> impulseId
-	impulses.forEach(impulse => {
-		impulseIndex[impulse.internalName] = impulse.id;
-	});
-	// keep dictionary of impulseName -> impulseId
-	weapons.forEach(weapon => {
-		weaponIndex[weapon.name] = weapon.id;
-	});
 
-	matches.getMatches(program.args[0], (matchesData) => {
-		// TODO a better way... filter out non arena games (1 arena, 2 campaign, 3 custom, 4 warzone)
-		let endOfSession = 0;
-
-		// for every match in the session, getCarnageReportAndEvents
-		axios.all(
-			matchesData.filter((match, i) => {
-				// find the first non arena game and make sure nothing after it is returned
-				if (match.Id.GameMode !== 1) {
-					endOfSession = i;
-				}
-				if (endOfSession) {
-					return false;
-				}
-				return true;
-			}).map(match => getCarnageReportAndEvents('https://www.haloapi.com/stats/' + match.Links.StatsMatchDetails.Path, match.Id.MatchId, {teamId: match.Players[0].TeamId})) // we're just passing the teamId down for ease of use later
-		).then(matchDataResponseArray => {
-			matchDataResponseArray.forEach(matchData => {
-				// need to track who are teammates and who are for later when we go through event data
-				let teammateIndex = {};
-
-				matchData.carnageReport.PlayerStats.forEach(playerStats => {
-					if (playerStats.TeamId === matchData.matchInfo.teamId) {
-						teammateIndex[playerStats.Player.Gamertag] = true;
-					}
-
-					const currentUser = getRecordedUsername(playerStats.Player.Gamertag, matchData.matchInfo.teamId === playerStats.TeamId);
-
-					if (!aggregatedData.users[currentUser]) {
-						aggregatedData.users[currentUser] = {
-							name: currentUser,
-							kills: 0,
-							deaths: 0,
-							assists: 0,
-							damageDealt: 0,
-							damagePerDeath: 0,
-							grenadeKills: 0,
-							magnumDamage: 0,
-							magnumHits: 0,
-							magnumShots: 0,
-							magnumAccuracy: 0,
-							arDamage: 0,
-							arHits: 0,
-							arShots: 0,
-							arAccuracy: 0,
-							rifleHits: 0,
-							rifleShots: 0,
-							rifleAccuracy: 0,
-							pWeaponKills: 0,
-							pWeaponDamage: 0,
-							pWeaponPickups: 0,
-							perfectKills: 0,
-							medals: 0,
-							flagPulls: 0,
-							flagsCapped: 0,
-							flagsReturned: 0,
-							flagnumKills: 0,
-							flagCarrierKills: 0,
-							sHCaptures: 0,
-							sHAssists: 0,
-							sHSecured: 0,
-							sHDefense: 0,
-							turnovers: 0
-						};
-						aggregatedData.result.push(currentUser);
-					}
-
-					// gather up the rifle data
-					playerStats.WeaponStats.forEach(w => {
-						switch (w.WeaponId.StockId) {
-							case BATTLE_RIFLE_WEAPON_ID:
-							case CARBINE_WEAPON_ID:
-							case LIGHTRIFLE_WEAPON_ID:
-							case DMR_WEAPON_ID:
-							case H2_BR_WEAPON_ID:
-								aggregatedData.users[currentUser].rifleHits += w.TotalShotsLanded;
-								aggregatedData.users[currentUser].rifleShots += w.TotalShotsFired;
-								break;
-						}
-					});
-
-					const magnumStats = playerStats.WeaponStats.filter(weapon => weapon.WeaponId.StockId === MAGNUM_WEAPON_ID)[0] || {};
-					const arStats = playerStats.WeaponStats.filter(weapon => weapon.WeaponId.StockId === AR_WEAPON_ID)[0] || {};
-
-					const h2BRStats = playerStats.WeaponStats.filter(weapon => weapon.WeaponId.StockId === H2_BR_WEAPON_ID)[0] || {};
-					const bRStats = playerStats.WeaponStats.filter(weapon => weapon.WeaponId.StockId === BATTLE_RIFLE_WEAPON_ID)[0] || {};
-					const carbineStats = playerStats.WeaponStats.filter(weapon => weapon.WeaponId.StockId === CARBINE_WEAPON_ID)[0] || {};
-					const lightRifleStats = playerStats.WeaponStats.filter(weapon => weapon.WeaponId.StockId === LIGHTRIFLE_WEAPON_ID)[0] || {};
-					const dMRStats = playerStats.WeaponStats.filter(weapon => weapon.WeaponId.StockId === DMR_WEAPON_ID)[0] || {};
-
-					const allMedals = playerStats.MedalAwards;
-					const allImpulses = playerStats.Impulses;
-
-					// loop through all medals awarded to the player and count the ones we care about
-					allMedals.forEach(m => {
-						aggregatedData.users[currentUser].medals += m.Count;
-
-						switch (m.MedalId) {
-							case HALO_CE_PERFECT_MEDAL_ID:
-							case CARBINE_PERFECT_MEDAL_ID:
-							case DMR_PERFECT_MEDAL_ID:
-							case MAGNUM_PERFECT_MEDAL_ID:
-							case BR_PERFECT_MEDAL_ID:
-							case LIGHTRIFLE_PERFECT_MEDAL_ID:
-								aggregatedData.users[currentUser].perfectKills += m.Count;
-								break;
-							case STRONGHOLD_DEFENSE_MEDAL_ID:
-								aggregatedData.users[currentUser].sHDefense += m.Count;
-								break;
-							case STRONGHOLD_CAPTURE_MEDAL_ID:
-								aggregatedData.users[currentUser].sHCaptures += m.Count;
-								break;
-							case STRONGHOLD_SECURED_MEDAL_ID:
-								aggregatedData.users[currentUser].sHSecured += m.Count;
-								break;
-							case STRONGHOLD_CAPTURE_ASSIST_MEDAL_ID:
-								aggregatedData.users[currentUser].sHAssists += m.Count;
-								break;
-						}
-					});
-
-					// loop through all impulses for the player and count the ones we care about
-					allImpulses.forEach(impulse => {
-						switch (impulse.Id) {
-							case FLAG_PULL_IMPULSE_ID:
-								aggregatedData.users[currentUser].flagPulls += impulse.Count
-								break;
-							case FLAG_RETURNED_IMPULSE_ID:
-								aggregatedData.users[currentUser].flagsReturned += impulse.Count
-								break;
-							case FLAG_CAPPED_IMPULSE_ID:
-								aggregatedData.users[currentUser].flagsCapped += impulse.Count
-								break;
-							case FLAGNUM_KILLS_IMPULSE_ID:
-								aggregatedData.users[currentUser].flagnumKills += impulse.Count
-								break;
-							case FLAG_CARRIER_KILL_IMPULSE_ID:
-								aggregatedData.users[currentUser].flagCarrierKills += impulse.Count
-								break;
-						}
-					});
-
-					aggregatedData.users[currentUser].kills += playerStats.TotalKills;
-					aggregatedData.users[currentUser].deaths += playerStats.TotalDeaths;
-					aggregatedData.users[currentUser].assists += playerStats.TotalAssists;
-
-					aggregatedData.users[currentUser].grenadeKills += playerStats.TotalGrenadeKills;
-
-					aggregatedData.users[currentUser].damageDealt += Math.floor(
-						// is there really no total damage stat???
-						playerStats.TotalWeaponDamage
-						+ playerStats.TotalMeleeDamage
-						+ playerStats.TotalGroundPoundDamage
-						+ playerStats.TotalGrenadeDamage
-						+ playerStats.TotalPowerWeaponDamage
-					);
-
-					aggregatedData.users[currentUser].magnumDamage += Math.floor(magnumStats.TotalDamageDealt);
-					aggregatedData.users[currentUser].magnumHits += magnumStats.TotalShotsLanded;
-					aggregatedData.users[currentUser].magnumShots += magnumStats.TotalShotsFired;
-
-					aggregatedData.users[currentUser].arDamage += Math.floor(arStats.TotalDamageDealt);
-					aggregatedData.users[currentUser].arHits += arStats.TotalShotsLanded;
-					aggregatedData.users[currentUser].arShots += arStats.TotalShotsFired;
-
-					aggregatedData.users[currentUser].pWeaponKills += playerStats.TotalPowerWeaponKills;
-					aggregatedData.users[currentUser].pWeaponDamage += Math.floor(playerStats.TotalPowerWeaponDamage);
-					aggregatedData.users[currentUser].pWeaponPickups += playerStats.TotalPowerWeaponGrabs;
-				});
-
-				// TODO
-				const eventStats = matchEvents.getMatchEvents(matchData.matchEvents);
-
-				// TODO
-				// // aggregate stats for the teamStats table
-				// teamStats.maps['total'].totalGames++;
-				// matchData.carnageReport.TeamStats.forEach(t => {
-				// 	// totalWins: 0,
-				// 	// totalGames: 0,
-				// 	// bestStreak: 0,
-				// 	// turnoversOnWins: null,
-				// 	// turnoversOnLosses: null,
-				// 	// avgStaringCSR: null,
-				// 	// avgEndingCSR: null,
-				// 	// averageOpponentCSR: null,
-				// 	// averageOpponentCSRWins: null,
-				// 	// averageOpponentCSRLosses: null
-				// 	if (t.Rank === 1 && t.TeamId === matchData.matchInfo.teamId) {
-				// 		teamStats.totalWins++
-				// 		teamStats.turnoversOnWins += Object.keys(teammateIndex).map(teammate => aggregatedData)
-				// 	}
-				// });
-			});
-
-			// done iterating through matches, calculate final accuracy stats
-			aggregatedData.result.forEach(tag => {
-				aggregatedData.users[tag].magnumAccuracy = Math.floor(100 * aggregatedData.users[tag].magnumHits / aggregatedData.users[tag].magnumShots);
-				aggregatedData.users[tag].arAccuracy = Math.floor(100 * aggregatedData.users[tag].arHits / aggregatedData.users[tag].arShots);
-				aggregatedData.users[tag].rifleAccuracy = Math.floor(100 * aggregatedData.users[tag].rifleHits / aggregatedData.users[tag].rifleShots);
-				aggregatedData.users[tag].damagePerDeath = Math.floor(aggregatedData.users[tag].damageDealt / aggregatedData.users[tag].deaths);
-			});
-
-			aggregatedData.result.sort((tagA, tagB) => {
-				if (recordedUserIndex[tagA] && recordedUserIndex[tagB]) {
-					return aggregatedData.users[tagB].kills - aggregatedData.users[tagA].kills
-				}
-				if (recordedUserIndex[tagB] && !recordedUserIndex[tagA]) {
-					return 1;
-				}
-				if (!recordedUserIndex[tagB] && recordedUserIndex[tagA]) {
-					return -1;
-				}
-			});
-
-			// only keep the top 10;
-			aggregatedData.result = aggregatedData.result.slice(0, 10);
-			console.table(aggregatedData.result.map((tag) => aggregatedData.users[tag]));
-			process.exit(0);
-		}).catch(err => {
-			console.warn('Error fetching carnage reports: ', err);
-			process.exit(1);
+		async.parallel(matchesData.map(match => fetchAllMatchData.bind(null, match.Id.MatchId, match.Links.StatsMatchDetails.Path, match.Players[0].TeamId)), (err, allMatchData) => {
+			if (err) {
+				console.error(`Error fetching carnage reports: ${err}`);
+				process.exit(1);
+				return;
+			}
+			console.log("DONE PARALLEL CARNAGE: ", allMatchData);
 		});
+
+		// 			if (!aggregatedData.users[currentUser]) {
+		// 				aggregatedData.users[currentUser] = {
+		// 					name: currentUser,
+		// 					kills: 0,
+		// 					deaths: 0,
+		// 					assists: 0,
+		// 					damageDealt: 0,
+		// 					damagePerDeath: 0,
+		// 					grenadeKills: 0,
+		// 					magnumDamage: 0,
+		// 					magnumHits: 0,
+		// 					magnumShots: 0,
+		// 					magnumAccuracy: 0,
+		// 					arDamage: 0,
+		// 					arHits: 0,
+		// 					arShots: 0,
+		// 					arAccuracy: 0,
+		// 					rifleHits: 0,
+		// 					rifleShots: 0,
+		// 					rifleAccuracy: 0,
+		// 					pWeaponKills: 0,
+		// 					pWeaponDamage: 0,
+		// 					pWeaponPickups: 0,
+		// 					perfectKills: 0,
+		// 					medals: 0,
+		// 					flagPulls: 0,
+		// 					flagsCapped: 0,
+		// 					flagsReturned: 0,
+		// 					flagnumKills: 0,
+		// 					flagCarrierKills: 0,
+		// 					sHCaptures: 0,
+		// 					sHAssists: 0,
+		// 					sHSecured: 0,
+		// 					sHDefense: 0,
+		// 					turnovers: 0
+		// 				};
+
 	})
 });
