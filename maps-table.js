@@ -84,7 +84,7 @@ module.exports.getMapsTable = function (allMatchData) {
 			if (mapStats.entities[m.map].streak < mapStats.entities[m.map].worstStreak) {
 				mapStats.entities[m.map].worstStreak = mapStats.entities[m.map].streak;
 			}
-			mapStats.entities[m.map].losingTurnovers += turnovers;
+			mapStats.entities[m.map].losingTurnovers += teamTurnovers;
 			if (enemyAvgCsr < mapStats.entities[m.map].worstAvgCsrLoss) {
 				mapStats.entities[m.map].worstAvgCsrLoss = enemyAvgCsr;
 			}

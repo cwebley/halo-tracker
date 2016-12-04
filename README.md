@@ -4,6 +4,6 @@ Command line tool that aggregates stats for a Halo session that are otherwise ha
 ## Usage
 
 ```bash
-	node index.js 'The Furious Moo' 'WWMJPD' 'I chan I' 'TFA Ch3ckmate'
+	node index.js 'The Furious Moo' 'WWMJPD' 'I chan I' 'TFA Ch3ckMate'
 	# outputs a giant table of stats
 ```

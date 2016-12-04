@@ -85,8 +85,11 @@ function processPlayerStats (p, friendlyTeamId) {
 		rifleShots: 0,
 		rifleHeadshots: 0,
 		rifleKills: 0,
+		pWeaponKills: 0,
+		pWeaponDmg: 0,
 		medalCount: 0,
 		perfectKills: 0,
+		distractions: 0,
 		sHAssists: 0,
 		sHCaptures: 0,
 		sHDefense: 0,
@@ -104,7 +107,7 @@ function processPlayerStats (p, friendlyTeamId) {
 	p.WeaponStats.forEach(w => {
 		if (config.isRifle(w.WeaponId.StockId)) {
 			formattedStats.rifleShots += w.TotalShotsFired;
-			formattedStats.rifleShotsHit += w.TotalShotsLanded;
+			formattedStats.rifleHits += w.TotalShotsLanded;
 			formattedStats.rifleDmg += Math.floor(w.TotalDamageDealt);
 			formattedStats.rifleKills += w.TotalKills;
 			formattedStats.rifleHeadshots += w.TotalHeadshots;
@@ -140,7 +143,7 @@ function processPlayerStats (p, friendlyTeamId) {
 			formattedStats.perfectKills += m.Count;
 			return;
 		}
-		switch (config.get(m.MedalId)) {
+		switch (config.get('medal', m.MedalId)) {
 			case 'Distraction':
 				formattedStats.distractions += m.Count;
 				break;
@@ -161,7 +164,7 @@ function processPlayerStats (p, friendlyTeamId) {
 
 	p.Impulses.forEach(i => {
 		// unfortunately impulse names returned by the api have VeRy_Inc0ns1st3nts_formatting...
-		switch (config.get(i.Id)) {
+		switch (config.get('impulse', i.Id)) {
 			case 'Flag Pulls':
 				formattedStats.flagPulls += i.Count;
 				break;

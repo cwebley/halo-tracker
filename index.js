@@ -7,6 +7,7 @@ const events = require('./events');
 const carnage = require('./carnage');
 const async = require('neo-async');
 const mapsTable = require('./maps-table');
+const usersTable = require('./users-table');
 
 program
 	.version('1.0.0')
@@ -68,6 +69,7 @@ metadata.getMetadata((err, { maps, medals, impulses, weapons, gameTypes }) => {
 			}
 
 			console.table(mapsTable.getMapsTable(allMatchData));
+			console.table(usersTable.getUsersTable(allMatchData));
 		});
 
 		// avgStaringCSR: null,

@@ -1,7 +1,7 @@
 const RateLimiter = require('limiter').RateLimiter;
 
  // haloapi only allows 10 requests every 10 seconds
-module.exports.limiter = new RateLimiter(10, 10000);
+module.exports.limiter = new RateLimiter(10, 11000); // 11 seconds just to be safe
 module.exports.API_KEY = 'c4778a4ab06e40c39136923ae01c4245';
 module.exports.BASE_STATS_URL = 'https://www.haloapi.com/stats/';
 
@@ -10,7 +10,7 @@ module.exports.getMetaDataUrl = function (type) {
 }
 
 module.exports.getMatchesUrl = function (gamertag) {
-	return `https://www.haloapi.com/stats/h5/players/${gamertag}/matches?count=2`;
+	return `https://www.haloapi.com/stats/h5/players/${gamertag}/matches`;
 }
 
 module.exports.getMatchEventsUrl = function (matchId) {
@@ -68,7 +68,7 @@ module.exports.set = function (type, id, name) {
 			break;
 		case 'medal':
 			if (name === 'Perfect Kill') {
-				perfectKillIds[id] === true;
+				perfectKillIds[id] = true;
 				break;
 			}
 			medalIndex[id] = name;
@@ -98,7 +98,7 @@ module.exports.isRifle = function (id) {
 	return !!rifleIds[id];
 }
 module.exports.isPerfectMedal = function (id) {
-	return perfectKillIds[id];
+	return !!perfectKillIds[id];
 }
 
 module.exports.get = function (type, key) {
