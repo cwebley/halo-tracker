@@ -6,6 +6,7 @@ const matches = require('./matches');
 const events = require('./events');
 const carnage = require('./carnage');
 const async = require('neo-async');
+const mapsTable = require('./maps-table');
 
 program
 	.version('1.0.0')
@@ -65,63 +66,8 @@ metadata.getMetadata((err, { maps, medals, impulses, weapons, gameTypes }) => {
 				process.exit(1);
 				return;
 			}
-			console.log("DONE PARALLEL CARNAGE: ", allMatchData);
 
-
-			let mapStats = {
-				entities: {
-					all: {
-						mapName: 'all',
-						totalWins: 0,
-						totalGames: 0,
-						turnoversOnWins: null,
-						turnoversOnLosses: null
-					}
-				},
-				result: ['all']
-			};
-			allMatchData.forEach(m => {
-				if (!mapStats.entities[m.map]) {
-					mapStats.entities[m.map] = {
-						mapName: m.map,
-						totalWins: 0,
-						totalGames: 0,
-						turnoversOnWins: null,
-						turnoversOnLosses: null,
-					};
-					mapStats.result.push(m.map);
-				}
-				// total up all the turnovers for the friendly team (initial value of 0)
-				const turnovers = Object.keys(m.teams.friendly.ids).reduce((prev, cur) => prev + m.users[cur].turnovers, 0);
-
-				mapStats.entities.all.totalGames++;
-				mapStats.entities[m.map].totalGames++;
-
-				if (m.teams.friendly.win) {
-					mapStats.entities.all.totalWins++
-					if (!mapStats.entities.all.turnoversOnWins) {
-						mapStats.entities.all.turnoversOnWins = 0;
-					}
-					mapStats.entities.all.turnoversOnWins += turnovers;
-
-					mapStats.entities[m.map].totalWins++
-					if (!mapStats.entities[m.map].turnoversOnWins) {
-						mapStats.entities[m.map].turnoversOnWins = 0;
-					}
-					mapStats.entities[m.map].turnoversOnWins += turnovers;
-				} else {
-					if (!mapStats.entities.all.turnoversOnLosses) {
-						mapStats.entities.all.turnoversOnLosses = 0;
-					}
-					mapStats.entities.all.turnoversOnLosses += turnovers;
-
-					if (!mapStats.entities[m.map].turnoversOnLosses) {
-						mapStats.entities[m.map].turnoversOnLosses = 0;
-					}
-					mapStats.entities[m.map].turnoversOnLosses += turnovers;
-				}
-			});
-			console.table(mapStats.result.map(m => mapStats.entities[m]))
+			console.table(mapsTable.getMapsTable(allMatchData));
 		});
 
 		// avgStaringCSR: null,

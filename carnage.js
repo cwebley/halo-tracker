@@ -40,8 +40,11 @@ module.exports.getCarnageReportData = function (partialUrl, friendlyTeamId, cb) 
 				users[p.Player.Gamertag] = processPlayerStats(p, friendlyTeamId);
 				if (p.TeamId === friendlyTeamId) {
 					teams.friendly.ids[p.Player.Gamertag] = true;
+					return;
 				}
-
+				if (p.TeamId !== friendlyTeamId) {
+					teams.enemy.ids[p.Player.Gamertag] = true;
+				}
 			});
 
 			body.TeamStats.forEach(t => {
@@ -69,8 +72,8 @@ function processPlayerStats (p, friendlyTeamId) {
 	let formattedStats = {
 		name: p.Player.Gamertag,
 		friendlyTeam: p.TeamId === friendlyTeamId,
-		previousCSR: p.PreviousCsr,
-		currentCSR: p.CurrentCsr,
+		previousCsr: p.PreviousCsr,
+		currentCsr: p.CurrentCsr,
 		kills: p.TotalKills,
 		deaths: p.TotalDeaths,
 		assists: p.TotalAssists,
