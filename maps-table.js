@@ -3,6 +3,9 @@ const mapsBaseRow = {
 	losses: 0,
 	objWins: 0,
 	objLosses: 0,
+	streak: 0,
+	bestStreak: 0,
+	worstStreak: 0,
 	winningTurnovers: 0,
 	losingTurnovers: 0,
 	turnoversPGOnWin: null,
@@ -43,6 +46,10 @@ module.exports.getMapsTable = function (allMatchData) {
 		if (m.teams.friendly.win) {
 			// update winning data for all maps
 			mapStats.entities.all.wins++
+			mapStats.entities.all.streak = mapStats.entities.all.streak > 0 ? mapStats.entities.all.streak + 1 : 1;
+			if (mapStats.entities.all.streak > mapStats.entities.all.bestStreak) {
+				mapStats.entities.all.bestStreak = mapStats.entities.all.streak;
+			}
 			mapStats.entities.all.winningTurnovers += teamTurnovers;
 
 			// if this is the highest ranked team, record it
@@ -52,6 +59,10 @@ module.exports.getMapsTable = function (allMatchData) {
 
 			// update winning data for this specific map
 			mapStats.entities[m.map].wins++
+			mapStats.entities[m.map].streak = mapStats.entities[m.map].streak > 0 ? mapStats.entities[m.map].streak + 1 : 1;
+			if (mapStats.entities[m.map].streak > mapStats.entities[m.map].bestStreak) {
+				mapStats.entities[m.map].bestStreak = mapStats.entities[m.map].streak;
+			}
 			mapStats.entities[m.map].winningTurnovers += teamTurnovers;
 			if (enemyAvgCsr > mapStats.entities[m.map].bestAvgCsrWin) {
 				mapStats.entities[m.map].bestAvgCsrWin = enemyAvgCsr;
@@ -59,12 +70,20 @@ module.exports.getMapsTable = function (allMatchData) {
 		} else {
 			// update losing data for all maps
 			mapStats.entities.all.losses++
+			mapStats.entities.all.streak = mapStats.entities.all.streak < 0 ? mapStats.entities.all.streak - 1 : -1;
+			if (mapStats.entities.all.streak < mapStats.entities.all.worstStreak) {
+				mapStats.entities.all.worstStreak = mapStats.entities.all.streak;
+			}
 			mapStats.entities[m.map].losingTurnovers += teamTurnovers
 			if (enemyAvgCsr < mapStats.entities.all.worstAvgCsrLoss) {
 				mapStats.entities.all.worstAvgCsrLoss = enemyAvgCsr;
 			}
 			// update losing data for this specific map
 			mapStats.entities[m.map].losses++
+			mapStats.entities[m.map].streak = mapStats.entities[m.map].streak < 0 ? mapStats.entities[m.map].streak - 1 : -1;
+			if (mapStats.entities[m.map].streak < mapStats.entities[m.map].worstStreak) {
+				mapStats.entities[m.map].worstStreak = mapStats.entities[m.map].streak;
+			}
 			mapStats.entities[m.map].losingTurnovers += turnovers;
 			if (enemyAvgCsr < mapStats.entities[m.map].worstAvgCsrLoss) {
 				mapStats.entities[m.map].worstAvgCsrLoss = enemyAvgCsr;
@@ -81,6 +100,7 @@ module.exports.getMapsTable = function (allMatchData) {
 		}
 		delete mapStats.entities[map].winningTurnovers;
 		delete mapStats.entities[map].losingTurnovers;
+		delete mapStats.entities[map].streak;
 	});
 	return mapStats.result.map(m => mapStats.entities[m]);
 }
