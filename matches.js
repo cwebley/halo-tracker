@@ -5,6 +5,7 @@ const limiter = config.limiter;
 // fetches the most recent 25 games and only returns the most recent games that are arena (GameMode = 1)
 // there is no pagination right now if the session is longer than 25 games
 module.exports.getMatches = function (gamertag, cb) {
+	console.info(`Fetching matches for ${gamertag}`);
 	limiter.removeTokens(1, (err, remainingTokens) => {
 		request({
 			method: 'GET',

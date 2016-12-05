@@ -5,5 +5,5 @@ Command line tool that aggregates stats for a Halo session that are otherwise ha
 
 ```bash
 	node index.js 'The Furious Moo' 'WWMJPD' 'I chan I' 'TFA Ch3ckMate'
-	# outputs a giant table of stats
+	# outputs a few giant tables of stats after waiting on haloapi and crunching a ton of nubmbers
 ```

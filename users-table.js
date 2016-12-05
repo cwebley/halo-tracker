@@ -77,10 +77,7 @@ module.exports.getUsersTable = function (allMatchData) {
 				if (!config.isRandomTeammate(friendlyTag, true)) {
 					usersOverall.entities[friendlyTag].startingCsr = m.users[friendlyTag].previousCsr.Csr;
 					// for the 'all' user, add up everyone's csr for an average calculated below. we'll need to add the randoms' average csr
-					console.log("PREVIOUS  FOR NON RANDOM :", friendlyTag, m.users[friendlyTag].previousCsr.Csr);
 					usersOverall.entities.all.totalStartingCsr += m.users[friendlyTag].previousCsr.Csr;
-					console.log("TOTAL  :", usersOverall.entities.all.totalStartingCsr)
-
 				}
 			}
 

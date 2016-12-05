@@ -11,6 +11,7 @@ const mapsBaseRow = {
 	turnoversPGOnWin: null,
 	turnoversPGOnLoss: null,
 	bestAvgCsrWin: null,
+	bestTeamBeatenTags: null,
 	worstAvgCsrLoss: null
 };
 
@@ -62,6 +63,7 @@ module.exports.getMapsTable = function (allMatchData) {
 			// if this is the highest ranked team, record it
 			if (enemyAvgCsr > mapStats.entities.all.bestAvgCsrWin) {
 				mapStats.entities.all.bestAvgCsrWin = enemyAvgCsr;
+				mapStats.entities.all.bestTeamBeatenTags = enemyIds.join(', ');
 			}
 
 			// update winning data for this specific map
@@ -73,15 +75,9 @@ module.exports.getMapsTable = function (allMatchData) {
 			mapStats.entities[m.map].winningTurnovers += teamTurnovers;
 			if (enemyAvgCsr > mapStats.entities[m.map].bestAvgCsrWin) {
 				mapStats.entities[m.map].bestAvgCsrWin = enemyAvgCsr;
+				mapStats.entities[m.map].bestTeamBeatenTags = enemyIds.join(', ');
 			}
 		} else {
-			if (!mapStats.entities.all.worstAvgCsrLoss) {
-				mapStats.entities.all.worstAvgCsrLoss = 0;
-			}
-			if (!mapStats.entities[m.map].worstAvgCsrLoss) {
-				mapStats.entities[m.map].worstAvgCsrLoss = 0;
-			}
-
 			// update losing data for all maps
 			mapStats.entities.all.losses++
 			mapStats.entities.all.streak = mapStats.entities.all.streak < 0 ? mapStats.entities.all.streak - 1 : -1;
@@ -89,7 +85,7 @@ module.exports.getMapsTable = function (allMatchData) {
 				mapStats.entities.all.worstStreak = mapStats.entities.all.streak;
 			}
 			mapStats.entities[m.map].losingTurnovers += teamTurnovers
-			if (enemyAvgCsr < mapStats.entities.all.worstAvgCsrLoss) {
+			if (!mapStats.entities.all.worstAvgCsrLoss || enemyAvgCsr < mapStats.entities.all.worstAvgCsrLoss) {
 				mapStats.entities.all.worstAvgCsrLoss = enemyAvgCsr;
 			}
 			// update losing data for this specific map
@@ -99,7 +95,7 @@ module.exports.getMapsTable = function (allMatchData) {
 				mapStats.entities[m.map].worstStreak = mapStats.entities[m.map].streak;
 			}
 			mapStats.entities[m.map].losingTurnovers += teamTurnovers;
-			if (enemyAvgCsr < mapStats.entities[m.map].worstAvgCsrLoss) {
+			if (!mapStats.entities[m.map].worstAvgCsrLoss || enemyAvgCsr < mapStats.entities[m.map].worstAvgCsrLoss) {
 				mapStats.entities[m.map].worstAvgCsrLoss = enemyAvgCsr;
 			}
 		}

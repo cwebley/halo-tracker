@@ -8,6 +8,7 @@ module.exports.getMetadata = function (cb) {
 };
 
 function getMaps (cb) {
+	console.info('Fetching Maps...');
 	limiter.removeTokens(1, (err, remainingRequests) => {
 		request({
 			method: 'GET',
@@ -43,6 +44,7 @@ function getMaps (cb) {
 };
 
 function getMedals (cb) {
+	console.info('Fetching Medal...');
 	limiter.removeTokens(1, (err, remainingRequests) => {
 		request({
 			method: 'GET',
@@ -74,6 +76,7 @@ function getMedals (cb) {
 };
 
 function getImpulses (cb) {
+	console.info('Fetching Impulses...');
 	limiter.removeTokens(1, (err, remainingRequests) => {
 		request({
 			method: 'GET',
@@ -105,6 +108,7 @@ function getImpulses (cb) {
 };
 
 function getWeapons (cb) {
+	console.info('Fetching Weapons...');
 	limiter.removeTokens(1, (err, remainingRequests) => {
 		request({
 			method: 'GET',
@@ -136,6 +140,7 @@ function getWeapons (cb) {
 };
 
 function getGameBaseVariants (cb) {
+	console.info('Fetching Gametypes...');
 	limiter.removeTokens(1, (err, remainingRequests) => {
 		request({
 			method: 'GET',

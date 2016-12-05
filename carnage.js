@@ -88,15 +88,23 @@ function processPlayerStats (p, friendlyTeamId) {
 		medalCount: 0,
 		perfectKills: 0,
 		distractions: 0,
-		sHAssists: 0,
-		sHCaptures: 0,
-		sHDefense: 0,
-		sHSecures: 0,
+		shAssists: 0,
+		shCaptures: 0,
+		shDefense: 0,
+		shSecures: 0,
+		lockdowns: 0,
+		captureSprees: 0,
+		totalControls: 0,
 		flagPulls: 0,
 		flagReturns: 0,
 		flagCaptures: 0,
 		flagKills: 0,
 		flagCarrierKills: 0,
+		carrierProtects: 0,
+		flagsDropped: 0,
+		flagsPickedUp: 0,
+		goalLineStands: 0,
+		flagJousts: 0,
 		// these will manually incremented during the events processing
 		pWeaponPickups: 0,
 		turnovers: 0
@@ -146,16 +154,34 @@ function processPlayerStats (p, friendlyTeamId) {
 				formattedStats.distractions += m.Count;
 				break;
 			case 'Stronghold Secured':
-				formattedStats.sHSecures += m.Count;
+				formattedStats.shSecures += m.Count;
 				break;
 			case 'Stronghold Captured':
-				formattedStats.sHCaptures += m.Count;
+				formattedStats.shCaptures += m.Count;
 				break;
 			case 'Stronghold Defense':
 				formattedStats.shDefense += m.Count;
 				break;
 			case 'Capture Assist':
-				formattedStats.sHAssists += m.Count;
+				formattedStats.shAssists += m.Count;
+				break;
+			case 'Lockdown':
+				formattedStats.lockdowns += m.Count;
+				break;
+			case 'Capture Spree':
+				formattedStats.captureSprees += m.Count;
+				break;
+			case 'Total Control':
+				formattedStats.totalControls += m.Count;
+				break;
+			case 'Flag Joust':
+				formattedStats.flagJousts += m.Count;
+				break;
+			case 'Carrier Protected':
+				formattedStats.carrierProtects += m.Count;
+				break;
+			case 'Stopped Short': // 'Goal Line Stand' seems to be a duplicate of this medal
+				formattedStats.goalLineStands += m.Count;
 				break;
 		}
 	});
@@ -177,6 +203,12 @@ function processPlayerStats (p, friendlyTeamId) {
 				break;
 			case 'Flag Carrier Kill Impulse':
 				formattedStats.flagCarrierKills += i.Count;
+				break;
+			case 'Flag Dropped':
+				formattedStats.flagsDropped += i.Count;
+				break;
+			case 'Flag Pickup':
+				formattedStats.flagsPickedup += i.Count;
 				break;
 		}
 	});

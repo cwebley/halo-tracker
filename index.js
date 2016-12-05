@@ -8,6 +8,8 @@ const carnage = require('./carnage');
 const async = require('neo-async');
 const mapsTable = require('./maps-table');
 const usersTable = require('./users-table');
+const strongholdsTable = require('./strongholds-table');
+const ctfTable = require('./ctf-table');
 
 program
 	.version('1.0.0')
@@ -27,6 +29,7 @@ program.args.forEach(gamertag => {
 });
 
 const fetchAllDataForMatch = (matchId, carnageReportUrl, friendlyTeamId, cb) => {
+		console.info(`Fetching carnage report and match events for ${matchId}`);
 		carnage.getCarnageReportData(carnageReportUrl, friendlyTeamId, (err, carnageData) => {
 			if (err) {
 				console.error(`Error fetching carnage report for match ${matchId}: ${err}`)
@@ -70,6 +73,8 @@ metadata.getMetadata((err, { maps, medals, impulses, weapons, gameTypes }) => {
 
 			console.table(mapsTable.getMapsTable(allMatchData));
 			console.table(usersTable.getUsersTable(allMatchData));
+			console.table(strongholdsTable.getStrongholdsTable(allMatchData));
+			console.table(ctfTable.getCtfTable(allMatchData));
 		});
 	});
 });
