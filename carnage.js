@@ -4,8 +4,6 @@ const limiter = config.limiter;
 
 module.exports.getCarnageReportData = function (partialUrl, friendlyTeamId, cb) {
 	limiter.removeTokens(1, (err, remainingTokens) => {
-		console.log("CARNAGE LIMITER ERR: ", err);
-		console.log("REMAINING: ", remainingTokens);
 		request({
 			method: 'GET',
 			uri: config.BASE_STATS_URL + partialUrl,

@@ -4,8 +4,6 @@ const limiter = config.limiter;
 
 module.exports.getEventData = function (matchId, carnageData, cb) {
 	limiter.removeTokens(1, (err, remainingTokens) => {
-		console.log("EVENTS LIMITER ERR: ", err);
-		console.log("REMAINING: ", remainingTokens);
 		request({
 			method: 'GET',
 			uri: config.getMatchEventsUrl(matchId),

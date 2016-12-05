@@ -6,8 +6,6 @@ const limiter = config.limiter;
 // there is no pagination right now if the session is longer than 25 games
 module.exports.getMatches = function (gamertag, cb) {
 	limiter.removeTokens(1, (err, remainingTokens) => {
-		console.log("LIMITER ERR: ", err);
-		console.log("REMAINING: ", remainingTokens);
 		request({
 			method: 'GET',
 			uri: config.getMatchesUrl(gamertag),

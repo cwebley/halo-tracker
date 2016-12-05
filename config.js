@@ -1,7 +1,7 @@
 const RateLimiter = require('limiter').RateLimiter;
 
  // haloapi only allows 10 requests every 10 seconds
-module.exports.limiter = new RateLimiter(10, 11000); // 11 seconds just to be safe
+module.exports.limiter = new RateLimiter(8, 10000); // just to be safe; still get some 429s at 10 in 10000ms
 module.exports.API_KEY = 'c4778a4ab06e40c39136923ae01c4245';
 module.exports.BASE_STATS_URL = 'https://www.haloapi.com/stats/';
 
@@ -116,10 +116,10 @@ module.exports.get = function (type, key) {
 	}
 }
 
-module.exports.getRecordedUsername = function (gamertag, isTeammate) {
+module.exports.isRandomTeammate = function (gamertag, isTeammate) {
 	// we don't really care about random teammates' names
 	if (isTeammate && !userIndex[gamertag]) {
-		return 'RandomTeammates'
+		return true;
 	}
-	return gamertag;
+	return false;
 }

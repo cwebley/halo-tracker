@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run start-moo",
-    "start-moo": "node index.js 'The Furious Moo' 'WWMJPD' 'I chan I' 'TeeMore'"
+    "start-moo": "node index.js 'The Furious Moo' 'WWMJPD' 'I chan I' 'TFA Ch3ckMate' 'TeeMore'"
   },
   "author": "cwebley <cameron.webley@gmail.com>",
   "license": "MIT",
