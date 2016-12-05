@@ -1,1 +1,3 @@
+todo:
 distance traveled by connecting the dots between kills and deaths
+find the start of the session based on time, not based on simply finding a custom game
