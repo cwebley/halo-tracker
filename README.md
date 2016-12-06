@@ -10,3 +10,14 @@ Command line tool that aggregates stats for a Halo session that are otherwise ha
 	# hits halo api for carnage reports and match events for every match
 	# crunches a bunch of numbers then outputs a few giant tables of stats
 ```
+
+##Interesting Stats
+	In addition to simple aggregate stats for the session (kills, deaths, medals, flag pulls etc), there are a couple more interesting stats:
+	* **Turnovers**
+		Incremented when a player has control of a power weapon (tier 1 weapons like sniper/rockets,
+			OR tier 2 weapons like shotgun/sword) for at least 5 seconds, then drops the weapon before having
+			it be picked up by a member of the enemy team.
+	* **BestAvgCsrWin**
+		The highest ranked team beaten, by average CSR rating, for each map and overall
+	* **Weapon Stats**
+		Kills, headshots, damage, shots fired, accuracy for magnum, ar, and combined rifles

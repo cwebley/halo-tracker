@@ -1,3 +1,6 @@
 todo:
-distance traveled by connecting the dots between kills and deaths
+distance traveled by connecting the dots between kills and deaths. maybe avg distance between kills is worthwhile.
 find the start of the session based on time, not based on simply finding a custom game
+also, allow count and start query params if you know how many matches you want
+
+might be worthwhile to track turnovered weapons and see if they resulted in kills
