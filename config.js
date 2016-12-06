@@ -10,7 +10,7 @@ module.exports.getMetaDataUrl = function (type) {
 }
 
 module.exports.getMatchesUrl = function (gamertag) {
-	return `https://www.haloapi.com/stats/h5/players/${gamertag}/matches`;
+	return `https://www.haloapi.com/stats/h5/players/${gamertag}/matches?count=10`;
 }
 
 module.exports.getMatchEventsUrl = function (matchId) {

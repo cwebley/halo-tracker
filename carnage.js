@@ -208,7 +208,7 @@ function processPlayerStats (p, friendlyTeamId) {
 				formattedStats.flagsDropped += i.Count;
 				break;
 			case 'Flag Pickup':
-				formattedStats.flagsPickedup += i.Count;
+				formattedStats.flagsPickedUp += i.Count;
 				break;
 		}
 	});
