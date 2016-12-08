@@ -1,4 +1,5 @@
 const request = require('request');
+const moment = require('moment');
 const config = require('./config');
 const limiter = config.limiter;
 
@@ -75,7 +76,10 @@ function processPlayerStats (p, friendlyTeamId) {
 		kills: p.TotalKills,
 		deaths: p.TotalDeaths,
 		assists: p.TotalAssists,
-		grenadeKills: p.TotalGrenadeKills,
+		shotsFired: p.TotalShotsFired,
+		shotsHit: p.TotalShotsLanded,
+		headshots: p.TotalHeadshots,
+		totalGrenadeKills: p.TotalGrenadeKills,
 		dmgDealt,
 		dmgPerDeath: Math.floor(dmgDealt / p.TotalDeaths),
 		rifleDmg: 0,
@@ -103,11 +107,16 @@ function processPlayerStats (p, friendlyTeamId) {
 		carrierProtects: 0,
 		flagsDropped: 0,
 		flagsPickedUp: 0,
+		flagTime: 0,
 		goalLineStands: 0,
 		flagJousts: 0,
 		// these will manually incremented during the events processing
 		pWeaponPickups: 0,
-		turnovers: 0
+		turnovers: 0,
+		stupidNoob: 0,
+		hydraKills: 0,
+		splinterDeath: 0,
+		splinterKill: 0
 	};
 
 	p.WeaponStats.forEach(w => {
@@ -126,6 +135,12 @@ function processPlayerStats (p, friendlyTeamId) {
 		}
 
 		switch (config.get('weapon', w.WeaponId.StockId)) {
+			case 'Flagnum':
+				formattedStats.flagTime = moment.duration(w.TotalPossessionTime).seconds();
+				break;
+			case 'Hydra Launcher':
+				formattedStats.hydraKills = w.TotalKills;
+				break;
 			case 'Magnum':
 				formattedStats.magnumShots = w.TotalShotsFired;
 				formattedStats.magnumHits = w.TotalShotsLanded;

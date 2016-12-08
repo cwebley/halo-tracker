@@ -19,5 +19,9 @@ Command line tool that aggregates stats for a Halo session that are otherwise ha
 			it be picked up by a member of the enemy team.
 	* **BestAvgCsrWin**
 		The highest ranked team beaten, by average CSR rating, for each map and overall
+	* **FlagTime**
+		The number of seconds you were holding the flag (found by summing Flagnum possession time)
+	* **StupidNoob**
+		Deaths by hydra
 	* **Weapon Stats**
 		Kills, headshots, damage, shots fired, accuracy for magnum, ar, and combined rifles

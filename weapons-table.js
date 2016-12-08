@@ -1,25 +1,34 @@
 const config = require('./config');
 
-const ctfTableBaseRow = {
-	flagPulls: 0,
-	flagReturns: 0,
-	flagCaptures: 0,
-	flagKills: 0,
-	flagCarrierKills: 0,
-	carrierProtects: 0,
-	flagsDropped: 0,
-	flagsPickedUp: 0,
-	flagTime: 0,
-	goalLineStands: 0,
-	flagJousts: 0
+const weaponsTableBaseRow = {
+	magnumShots: 0,
+	magnumHits: 0,
+	magnumAccuracy: 0,
+	magnumDmg: 0,
+	magnumHeadshots: 0,
+	magnumKills: 0,
+	arShots: 0,
+	arHits: 0,
+	arAccuracy: 0,
+	arDmg: 0,
+	arKills: 0,
+	rifleHits: 0,
+	rifleShots: 0,
+	rifleAccuracy: 0,
+	rifleDmg: 0,
+	rifleHeadshots: 0,
+	rifleKills: 0,
+	totalGrenadeKills: 0,
+	splinterKill: 0,
+	hydraKills: 0
 };
 
-module.exports.getCtfTable = function (allMatchData) {
+module.exports.getWeaponsTable = function (allMatchData) {
 	let usersOverall = {
 		entities: {
 			all: Object.assign({
 				name: 'All'
-			}, ctfTableBaseRow)
+			}, weaponsTableBaseRow)
 		},
 		result: ['all']
 	};
@@ -29,11 +38,11 @@ module.exports.getCtfTable = function (allMatchData) {
 			if (!usersOverall.entities[friendlyTag]) {
 				usersOverall.entities[friendlyTag] = Object.assign({
 					name: friendlyTag
-				}, ctfTableBaseRow);
+				}, weaponsTableBaseRow);
 				usersOverall.result.push(friendlyTag);
 			}
 
-			Object.keys(ctfTableBaseRow).forEach(key => {
+			Object.keys(weaponsTableBaseRow).forEach(key => {
 				usersOverall.entities.all[key] += m.users[friendlyTag][key];
 				usersOverall.entities[friendlyTag][key] += m.users[friendlyTag][key];
 			});
@@ -50,12 +59,16 @@ module.exports.getCtfTable = function (allMatchData) {
 
 	const randomTeammateStats = Object.assign({
 		name: 'Random Teammate'
-	}, ctfTableBaseRow);
+	}, weaponsTableBaseRow);
 
 	usersOverall.result.forEach(user => {
+		usersOverall.entities[user].rifleAccuracy = Math.floor(100 * usersOverall.entities[user].rifleHits / usersOverall.entities[user].rifleShots);
+		usersOverall.entities[user].magnumAccuracy = Math.floor(100 * usersOverall.entities[user].magnumHits / usersOverall.entities[user].magnumShots);
+		usersOverall.entities[user].arAccuracy = Math.floor(100 * usersOverall.entities[user].arHits / usersOverall.entities[user].arShots);
+
 		// add up all the random teammate stats so we can average them
 		if (user !== 'all' && config.isRandomTeammate(user, true)) {
-			Object.keys(ctfTableBaseRow).forEach(key => {
+			Object.keys(weaponsTableBaseRow).forEach(key => {
 				randomTeammateStats[key] += usersOverall.entities[user][key];
 			});
 		}

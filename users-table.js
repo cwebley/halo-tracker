@@ -4,33 +4,20 @@ const usersAggregateStatsRow = {
 	kills: 0,
 	deaths: 0,
 	assists: 0,
+	shotsFired: 0,
+	shotsHit: 0,
+	headshots: 0,
 	dmgDealt: 0,
 	dmgPerDeath: 0,
-	grenadeKills: 0,
-	rifleHits: 0,
-	rifleShots: 0,
-	rifleAccuracy: 0,
-	rifleDmg: 0,
-	rifleHeadshots: 0,
-	rifleKills: 0,
-	magnumShots: 0,
-	magnumHits: 0,
-	magnumAccuracy: 0,
-	magnumDmg: 0,
-	magnumHeadshots: 0,
-	magnumKills: 0,
-	arShots: 0,
-	arHits: 0,
-	arAccuracy: 0,
-	arDmg: 0,
-	arKills: 0,
 	medalCount: 0,
 	perfectKills: 0,
 	distractions: 0,
 	pWeaponPickups: 0,
 	pWeaponKills: 0,
 	turnovers: 0,
-	medalCount: 0
+	medalCount: 0,
+	splinterDeath: 0,
+	stupidNoob: 0, // hydra deaths
 };
 
 const usersNonAggregateStats = {
@@ -110,11 +97,8 @@ module.exports.getUsersTable = function (allMatchData) {
 	}, usersAggregateStatsRow, usersNonAggregateStats);
 
 	usersOverall.result.forEach(user => {
-		// calculate dmgPerDeath and accuracies now that we have all the damage deaths shots and hits
+		// calculate dmgPerDeath now that we have all the damage deaths
 		usersOverall.entities[user].dmgPerDeath = Math.floor(usersOverall.entities[user].dmgDealt / usersOverall.entities[user].deaths);
-		usersOverall.entities[user].rifleAccuracy = Math.floor(100 * usersOverall.entities[user].rifleHits / usersOverall.entities[user].rifleShots);
-		usersOverall.entities[user].magnumAccuracy = Math.floor(100 * usersOverall.entities[user].magnumHits / usersOverall.entities[user].magnumShots);
-		usersOverall.entities[user].arAccuracy = Math.floor(100 * usersOverall.entities[user].arHits / usersOverall.entities[user].arShots);
 
 		// add up all the random teammate stats so we can average them
 		if (user !== 'all' && config.isRandomTeammate(user, true)) {
@@ -141,9 +125,6 @@ module.exports.getUsersTable = function (allMatchData) {
 
 	// dmgPerDeath and accuracy stats cant be aggregated. need to be calculated here.
 	randomTeammateStats.dmgPerDeath = Math.floor(randomTeammateStats.dmgDealt / randomTeammateStats.deaths);
-	randomTeammateStats.rifleAccuracy = Math.floor(100 * randomTeammateStats.rifleHits / randomTeammateStats.rifleShots);
-	randomTeammateStats.magnumAccuracy = Math.floor(100 * randomTeammateStats.magnumHits / randomTeammateStats.magnumShots);
-	randomTeammateStats.arAccuracy = Math.floor(100 * randomTeammateStats.arHits / randomTeammateStats.arShots);
 
 	delete randomTeammateStats.rifleHits;
 	delete randomTeammateStats.magnumHits;

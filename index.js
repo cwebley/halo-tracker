@@ -10,9 +10,12 @@ const mapsTable = require('./maps-table');
 const usersTable = require('./users-table');
 const strongholdsTable = require('./strongholds-table');
 const ctfTable = require('./ctf-table');
+const weaponsTable = require("./weapons-table");
 
 program
 	.version('1.0.0')
+	.option('-s, --skip [skip]', 'The number of games halo-tracker should skip before it begins looking for a session', parseInt)
+	.option('-c --count [count]', 'The number of games halo-tracker should include in this batch of stats', parseInt)
 	.parse(process.argv);
 
 const getMatchEvents = (matchId) => {
@@ -23,6 +26,8 @@ const getMatchEvents = (matchId) => {
 		}
 	});
 };
+
+console.log("PROGRAM: ", program)
 
 program.args.forEach(gamertag => {
 	config.set('user', gamertag);
@@ -56,7 +61,10 @@ metadata.getMetadata((err, { maps, medals, impulses, weapons, gameTypes }) => {
 		return;
 	}
 
-	matches.getMatches(program.args[0], (err, matchesData) => {
+	matches.getMatches(program.args[0], {
+		skip: program.skip || 0,
+		count: program.count || 25
+	}, (err, matchesData) => {
 		if (err) {
 			console.error(`Error fetching matches: ${err}`);
 			process.exit(1);
@@ -73,6 +81,7 @@ metadata.getMetadata((err, { maps, medals, impulses, weapons, gameTypes }) => {
 
 			console.table(mapsTable.getMapsTable(allMatchData));
 			console.table(usersTable.getUsersTable(allMatchData));
+			console.table(weaponsTable.getWeaponsTable(allMatchData));
 			console.table(strongholdsTable.getStrongholdsTable(allMatchData));
 			console.table(ctfTable.getCtfTable(allMatchData));
 		});

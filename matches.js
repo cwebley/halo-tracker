@@ -4,12 +4,15 @@ const limiter = config.limiter;
 
 // fetches the most recent 25 games and only returns the most recent games that are arena (GameMode = 1)
 // there is no pagination right now if the session is longer than 25 games
-module.exports.getMatches = function (gamertag, cb) {
+module.exports.getMatches = function (gamertag, { skip, count }, cb) {
 	console.info(`Fetching matches for ${gamertag}`);
 	limiter.removeTokens(1, (err, remainingTokens) => {
 		request({
 			method: 'GET',
-			uri: config.getMatchesUrl(gamertag),
+			uri: config.getMatchesUrl(gamertag, {
+				start: skip,
+				count
+			}),
 			json: true,
 			headers: {
 				'Ocp-Apim-Subscription-Key': config.API_KEY
