@@ -92,6 +92,7 @@ function processPlayerStats (p, friendlyTeamId) {
 		medalCount: 0,
 		perfectKills: 0,
 		distractions: 0,
+		reversals: 0,
 		shAssists: 0,
 		shCaptures: 0,
 		shDefense: 0,
@@ -110,13 +111,31 @@ function processPlayerStats (p, friendlyTeamId) {
 		flagTime: 0,
 		goalLineStands: 0,
 		flagJousts: 0,
+		clutchKillMedals: 0,
+
 		// these will manually incremented during the events processing
 		pWeaponPickups: 0,
 		turnovers: 0,
-		stupidNoob: 0,
+		environmentalDeaths: 0,
+		environmentalKills: 0,
+		hydraDeaths: 0,
 		hydraKills: 0,
-		splinterDeath: 0,
-		splinterKill: 0
+		splinterDeaths: 0,
+		splinterKills: 0,
+		firstBlood: 0,
+		unassistedKills: 0,
+		friendlyKills: 0,
+		barrelDestroys: 0,
+		spartanChargeKills: 0,
+		spartanChargeDeaths: 0,
+		groundPoundKills: 0,
+		groundPoundDeaths: 0,
+		meleeDeaths: 0,
+		meleeKills: 0,
+		assassinationDeaths: 0,
+		assassinationKills: 0,
+		beatDownKills: 0,
+		// beatDownDeaths: 0, // unfortunately there doesn't seem to be a great way to determine you got beat down from behind
 	};
 
 	p.WeaponStats.forEach(w => {
@@ -168,6 +187,9 @@ function processPlayerStats (p, friendlyTeamId) {
 			case 'Distraction':
 				formattedStats.distractions += m.Count;
 				break;
+			case 'Reversal':
+				formattedStats.reversals += m.Count;
+				break;
 			case 'Stronghold Secured':
 				formattedStats.shSecures += m.Count;
 				break;
@@ -197,6 +219,18 @@ function processPlayerStats (p, friendlyTeamId) {
 				break;
 			case 'Stopped Short': // 'Goal Line Stand' seems to be a duplicate of this medal
 				formattedStats.goalLineStands += m.Count;
+				break;
+			case 'Stopped Short': // 'Goal Line Stand' seems to be a duplicate of this medal
+				formattedStats.goalLineStands += m.Count;
+				break;
+			case 'Clutch Kill':
+				formattedStats.clutchKillMedals += m.Count; // clutch kill and gamesaver are both rare and similar, just lump em together
+				break;
+			case 'Game Saver':
+				formattedStats.clutchKillMedals += m.Count; // clutch kill and gamesaver are both rare and similar, just lump em together
+				break;
+			case 'Beat Down':
+				formattedStats.beatDownKills+= m.Count;
 				break;
 		}
 	});

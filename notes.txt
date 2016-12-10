@@ -4,3 +4,31 @@ distance traveled by connecting the dots between kills and deaths. maybe avg dis
 find the start of the session based on time, not based on simply finding a custom game
 
 might be worthwhile to track turnovered weapons and see if they resulted in kills
+
+awards:
+	longest range AR kill, magnum kill
+	most frantic (highest average distance traveled available)
+	most close range weapon kills?
+
+	most spartan kills. melees gp charge etc
+	most auto deaths
+	gave away the overkill
+	most sniped
+	most rocketed
+	most power weapon deaths
+	Pro Hunter (best pvp against high csr guys)
+	Noob hunter (best pvp against low csr guys)
+	where the ammo? picked up the least weapons
+	variety guy. kill with the biggest variety of weapons on average
+	best duo: players that assisted eachothers kills the most
+
+	simple ones:
+	most shots fired
+	best accuracy + perfects
+	most headshots per kill
+	some interesting medal awards
+	true teammate (assists + distractions + protectors...)
+	pushbackPro (most damage unaccounted for in kills/assists)
+	highest multikill
+	best spree
+	most objective

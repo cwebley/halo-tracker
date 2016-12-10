@@ -11,23 +11,13 @@ const usersTable = require('./users-table');
 const strongholdsTable = require('./strongholds-table');
 const ctfTable = require('./ctf-table');
 const weaponsTable = require("./weapons-table");
+const awardsTable = require("./awards-table");
 
 program
 	.version('1.0.0')
 	.option('-s, --skip [skip]', 'The number of games halo-tracker should skip before it begins looking for a session', parseInt)
 	.option('-c --count [count]', 'The number of games halo-tracker should include in this batch of stats', parseInt)
 	.parse(process.argv);
-
-const getMatchEvents = (matchId) => {
-	console.log("getMatchEvents: ", matchId);
-	return axios.get(getMatchEventsUrl(matchId), {
-		headers: {
-			'Ocp-Apim-Subscription-Key': config.API_KEY
-		}
-	});
-};
-
-console.log("PROGRAM: ", program)
 
 program.args.forEach(gamertag => {
 	config.set('user', gamertag);
@@ -80,10 +70,12 @@ metadata.getMetadata((err, { maps, medals, impulses, weapons, gameTypes }) => {
 			}
 
 			console.table(mapsTable.getMapsTable(allMatchData));
-			console.table(usersTable.getUsersTable(allMatchData));
+			const userData = usersTable.getUsersTable(allMatchData);
+			console.table(userData);
 			console.table(weaponsTable.getWeaponsTable(allMatchData));
 			console.table(strongholdsTable.getStrongholdsTable(allMatchData));
 			console.table(ctfTable.getCtfTable(allMatchData));
+			console.table(awardsTable.getAwardsTable(allMatchData, userData));
 		});
 	});
 });

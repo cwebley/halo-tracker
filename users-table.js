@@ -16,8 +16,7 @@ const usersAggregateStatsRow = {
 	pWeaponKills: 0,
 	turnovers: 0,
 	medalCount: 0,
-	splinterDeath: 0,
-	stupidNoob: 0, // hydra deaths
+	splinterDeaths: 0,
 };
 
 const usersNonAggregateStats = {
@@ -136,6 +135,8 @@ module.exports.getUsersTable = function (allMatchData) {
 	// finally, the startingCsr and endingCsrs for the random teammate need to be divided by number of random teammates
 	randomTeammateStats.startingCsr = Math.floor(randomTeammateStats.startingCsr / numberOfRandoms);
 	randomTeammateStats.endingCsr = Math.floor(randomTeammateStats.endingCsr / numberOfRandoms);
+
+	// TODO and if there is more than one random teammate, divide by that number so the random stats are comparable
 
 	// our final data structure has 'all', followed by the non random teammates...
 	usersOverall.result = usersOverall.result.filter(user => user === 'all' || !config.isRandomTeammate(user, true))
