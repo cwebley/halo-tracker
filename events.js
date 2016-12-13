@@ -50,7 +50,7 @@ function processEventData (events, carnageData) {
 						// keep track of kill-assist pairings for teamates to determine best duo stat
 						originalEvent.Assistants.forEach(assistant => {
 							// duo name is the combination of the two gamertags, sorted alphabetically
-							const duoName = [originalEvent.Killer.Gamertag, assistant.Gamertag].sort().join('+');
+							const duoName = [originalEvent.Killer.Gamertag, assistant.Gamertag].sort().join(' + ');
 							if (!duos.entities[duoName]) {
 								duos.result.push(duoName);
 								duos.entities[duoName] = 0;

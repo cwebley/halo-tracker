@@ -5,7 +5,7 @@ let allAwards = {
 	entities: {
 		stupidNoob: {
 			name: 'Stupid Noob',
-			description: '(suicides and betrayals) + (groundpound deaths) (assassination deaths) (explosive barrel deaths) + (hydras deaths)',
+			description: '(suicides and betrayals)+(groundpound deaths)+(assassination deaths)+(explosive barrel deaths)+(hydras deaths)',
 			gamertags: {
 				entities: {},
 				result: []
