@@ -11,6 +11,7 @@ const usersAggregateStatsRow = {
 	dmgPerDeath: 0,
 	medalCount: 0,
 	perfectKills: 0,
+	firstBlood: 0,
 	distractions: 0,
 	pWeaponPickups: 0,
 	pWeaponKills: 0,
@@ -68,8 +69,13 @@ module.exports.getUsersTable = function (allMatchData) {
 			}
 
 			// for the Random Teammates we need to get the previous and currentCsr of every game and find an average change
-			usersOverall.entities[friendlyTag].totalStartingCsr += m.users[friendlyTag].previousCsr.Csr;
-			usersOverall.entities[friendlyTag].totalEndingCsr += m.users[friendlyTag].currentCsr.Csr;
+			// TODO do something about csr not existing
+			if (m.users[friendlyTag].previousCsr) {
+				usersOverall.entities[friendlyTag].totalStartingCsr += m.users[friendlyTag].previousCsr.Csr;
+			}
+			if (m.users[friendlyTag].currentCsr) {
+				usersOverall.entities[friendlyTag].totalEndingCsr += m.users[friendlyTag].currentCsr.Csr;
+			}
 
 			// add to the total team data
 			Object.keys(usersAggregateStatsRow).forEach(key => {

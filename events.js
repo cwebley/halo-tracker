@@ -30,8 +30,14 @@ module.exports.getEventData = function (matchId, carnageData, cb) {
 
 function processEventData (events, carnageData) {
 	let firstBloodFound;
+	// keep track of each possible kill-assist pairing as they come up
+	let duos = {
+		entities: {},
+		result: []
+	};
 	events.forEach((originalEvent, originalEventIndex) => {
 		if (originalEvent.EventName === 'Death') {
+			// Death Disposition? friendly = 0, hostile = 1, neutral = 2
 			if (originalEvent.DeathDisposition === 1) {
 				if (!firstBloodFound) {
 					firstBloodFound = true;
@@ -39,10 +45,25 @@ function processEventData (events, carnageData) {
 				}
 				if (!originalEvent.Assistants.length) {
 					carnageData.users[originalEvent.Killer.Gamertag].unassistedKills++;
+				} else {
+					if (carnageData.users[originalEvent.Killer.Gamertag].friendlyTeam) {
+						// keep track of kill-assist pairings for teamates to determine best duo stat
+						originalEvent.Assistants.forEach(assistant => {
+							// duo name is the combination of the two gamertags, sorted alphabetically
+							const duoName = [originalEvent.Killer.Gamertag, assistant.Gamertag].sort().join('+');
+							if (!duos.entities[duoName]) {
+								duos.result.push(duoName);
+								duos.entities[duoName] = 0;
+							}
+							duos.entities[duoName]++;
+						});
+					}
+
 				}
 				if (originalEvent.IsMelee) {
 					carnageData.users[originalEvent.Victim.Gamertag].meleeDeaths++;
 					carnageData.users[originalEvent.Killer.Gamertag].meleeKills++;
+					// return here so the melee doesnt ALSO count as a kill for that weapon
 					return;
 				}
 				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'Hydra Launcher') {
@@ -56,9 +77,10 @@ function processEventData (events, carnageData) {
 					carnageData.users[originalEvent.Killer.Gamertag].splinterKills++
 				}
 				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'Environmental Explosives') {
-					// TODO confirm that environmental explosive deaths actually happen...
-					// died to a barrel or something
-					carnageData.users[originalEvent.Victim.Gamertag].environmentalDeaths++;
+					// died to a barrel or something. there isn't always a victim which is strange but whatever.
+					if (originalEvent.Victim) {
+						carnageData.users[originalEvent.Victim.Gamertag].environmentalDeaths++;
+					}
 					// killed an enemy by shooting a barrel or something
 					carnageData.users[originalEvent.Killer.Gamertag].environmentalKills++;
 				}
@@ -91,9 +113,6 @@ function processEventData (events, carnageData) {
 				carnageData.users[originalEvent.Killer.Gamertag].friendlyKills++;
 			}
 			return;
-		}
-		if (originalEvent.EventName === 'Death' && originalEvent.DeathDisposition === 2) { // Death Disposition? friendly = 0, hostile = 1, neutral = 2
-
 		}
 
 		// if a power weapon was picked up, lets track what happened to see if a turnover came out of it
@@ -136,6 +155,6 @@ function processEventData (events, carnageData) {
 			}
 		}
 	});
-
+	carnageData.duos = duos;
 	return carnageData;
 }

@@ -75,7 +75,7 @@ metadata.getMetadata((err, { maps, medals, impulses, weapons, gameTypes }) => {
 			console.table(weaponsTable.getWeaponsTable(allMatchData));
 			console.table(strongholdsTable.getStrongholdsTable(allMatchData));
 			console.table(ctfTable.getCtfTable(allMatchData));
-			console.table(awardsTable.getAwardsTable(allMatchData, userData));
+			console.log(awardsTable.getAwardsTable(allMatchData, userData));
 		});
 	});
 });

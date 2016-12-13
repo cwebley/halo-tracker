@@ -111,7 +111,8 @@ function processPlayerStats (p, friendlyTeamId) {
 		flagTime: 0,
 		goalLineStands: 0,
 		flagJousts: 0,
-		clutchKillMedals: 0,
+		gameSavers: 0,
+		clutchKills: 0,
 
 		// these will manually incremented during the events processing
 		pWeaponPickups: 0,
@@ -161,18 +162,18 @@ function processPlayerStats (p, friendlyTeamId) {
 				formattedStats.hydraKills = w.TotalKills;
 				break;
 			case 'Magnum':
-				formattedStats.magnumShots = w.TotalShotsFired;
-				formattedStats.magnumHits = w.TotalShotsLanded;
-				formattedStats.magnumDmg = Math.floor(w.TotalDamageDealt);
-				formattedStats.magnumKills = w.TotalKills;
-				formattedStats.magnumHeadshots = w.TotalHeadshots;
+				formattedStats.magnumShots = w.TotalShotsFired || 0;
+				formattedStats.magnumHits = w.TotalShotsLanded || 0;
+				formattedStats.magnumDmg = Math.floor(w.TotalDamageDealt) || 0;
+				formattedStats.magnumKills = w.TotalKills || 0;
+				formattedStats.magnumHeadshots = w.TotalHeadshots || 0;
 				break;
 			case 'Assault Rifle':
-				formattedStats.arShots = w.TotalShotsFired;
-				formattedStats.arHits = w.TotalShotsLanded;
-				formattedStats.arDmg = Math.floor(w.TotalDamageDealt);
-				formattedStats.arKills = w.TotalKills;
-				formattedStats.arHeadshots = w.TotalHeadshots;
+				formattedStats.arShots = w.TotalShotsFired || 0;
+				formattedStats.arHits = w.TotalShotsLanded || 0;
+				formattedStats.arDmg = Math.floor(w.TotalDamageDealt) || 0;
+				formattedStats.arKills = w.TotalKills || 0;
+				formattedStats.arHeadshots = w.TotalHeadshots || 0;
 				break;
 		}
 	});
@@ -224,10 +225,10 @@ function processPlayerStats (p, friendlyTeamId) {
 				formattedStats.goalLineStands += m.Count;
 				break;
 			case 'Clutch Kill':
-				formattedStats.clutchKillMedals += m.Count; // clutch kill and gamesaver are both rare and similar, just lump em together
+				formattedStats.gameSavers += m.Count;
 				break;
 			case 'Game Saver':
-				formattedStats.clutchKillMedals += m.Count; // clutch kill and gamesaver are both rare and similar, just lump em together
+				formattedStats.clutchKills += m.Count;
 				break;
 			case 'Beat Down':
 				formattedStats.beatDownKills+= m.Count;
