@@ -19,7 +19,6 @@ const weaponsTableBaseRow = {
 	rifleHeadshots: 0,
 	rifleKills: 0,
 	totalGrenadeKills: 0,
-	splinterKills: 0,
 	hydraKills: 0
 };
 

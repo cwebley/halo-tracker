@@ -16,8 +16,7 @@ const usersAggregateStatsRow = {
 	pWeaponPickups: 0,
 	pWeaponKills: 0,
 	turnovers: 0,
-	medalCount: 0,
-	splinterDeaths: 0,
+	medalCount: 0
 };
 
 const usersNonAggregateStats = {
