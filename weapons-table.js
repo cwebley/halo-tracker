@@ -19,7 +19,9 @@ const weaponsTableBaseRow = {
 	rifleHeadshots: 0,
 	rifleKills: 0,
 	totalGrenadeKills: 0,
-	hydraKills: 0
+	hydraKills: 0,
+	autoKills: 0,
+	autoDeaths: 0,
 };
 
 module.exports.getWeaponsTable = function (allMatchData) {

@@ -10,24 +10,17 @@ awards:
 	most frantic (highest average distance traveled available)
 	most close range weapon kills?
 
-	most auto deaths
-	most auto kills (make sure plaza silenced smg is showing up in the stats)
 	most sniped
 	most rocketed
 	most shotgunned
-	most power weapon deaths
 	Pro Hunter (best pvp against high csr guys)
 	Noob hunter (best pvp against low csr guys)
 	where the ammo? picked up the least weapons
 	Plato/Cornucopia. kill with the biggest variety of weapons on average
-	best duo: players that assisted each others kills the most
 	add most beatdown deaths using event medals
-	most no scoped using event medals
-	most reversed using event medals (add this to Don't Challenge Me?)
-	gave away the triple/overkill using event medals
 	most stuck using event medals
 	Where's the Cover? (most perfected using event medals + railgun deaths + hydra deaths)
-	most outnumbered (most average assistants per death)
+	pistol drops for rifle or ar drops for rifle?
 
 	most improved: save data from previous session in a file and point to it or something
 
@@ -37,7 +30,4 @@ awards:
 	most headshots per kill
 	some interesting medal awards. most snapshots
 	true teammate (assists + distractions + protectors + carrier protectors...)
-	pushbackPro (most damage unaccounted for in kills/assists)
-	highest multikill / most multikills
 	best spree
-	most objective

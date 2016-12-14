@@ -30,6 +30,7 @@ const gametypeIndex = {};
 // weaponId -> true
 const powerWeaponIds = {};
 const rifleIds = {};
+const autoIds = {};
 
 // there are several medals that share the name 'Perfect Kill'
 // here we keep them in one dictionary
@@ -55,6 +56,13 @@ const rifleNames = [
 	'DMR',
 	'Carbine',
 	'Halo 2 Battle Rifle'
+];
+
+const autoNames = [
+	'Assault Rifle',
+	'Storm Rifle',
+	'SMG',
+	'Suppressor'
 ];
 
 module.exports.set = function (type, id, name) {
@@ -84,6 +92,9 @@ module.exports.set = function (type, id, name) {
 			if (rifleNames.indexOf(name) !== -1) {
 				rifleIds[id] = true;
 			}
+			if (autoNames.indexOf(name) !== -1) {
+				autoIds[id] = true;
+			}
 			break;
 		case 'gametype':
 			gametypeIndex[id] = name;
@@ -96,6 +107,9 @@ module.exports.isPowerWeapon = function (id) {
 }
 module.exports.isRifle = function (id) {
 	return !!rifleIds[id];
+}
+module.exports.isAuto = function (id) {
+	return !!autoIds[id];
 }
 module.exports.isPerfectMedal = function (id) {
 	return !!perfectKillIds[id];

@@ -46,6 +46,10 @@ function processEventData (events, carnageData) {
 				if (!originalEvent.Assistants.length) {
 					carnageData.users[originalEvent.Killer.Gamertag].unassistedKills++;
 				} else {
+					// total assitants in death
+					carnageData.users[originalEvent.Victim.Gamertag].totalAssistantsInDeath += originalEvent.Assistants.length;
+
+					// duo kills
 					if (carnageData.users[originalEvent.Killer.Gamertag].friendlyTeam) {
 						// keep track of kill-assist pairings for teamates to determine best duo stat
 						originalEvent.Assistants.forEach(assistant => {
@@ -58,13 +62,68 @@ function processEventData (events, carnageData) {
 							duos.entities[duoName]++;
 						});
 					}
-
 				}
+				if (!originalEvent.Victim) {
+					console.log(" NO VICTIM FOR SOME REASON :", originalEvent);
+					return;
+				}
+
+				// let's find out if the victim got perfected, reversed, or noscoped (medals always follow directly after deaths)
+				// and if the Victim was holding a power weapon by checking the next 2 WeaponDrop (always after the medals) for the Victim:
+				let dropEventsFound = 0;
+				for (let medalOrDropEventIndex = originalEventIndex + 1; medalOrDropEventIndex < events.length; medalOrDropEventIndex++) {
+					if (dropEventsFound >= 2 ) {
+						break;
+					}
+					const medalOrDropEvent = events[medalOrDropEventIndex];
+
+					// if we found a medal and it's a Perfect Kill, increment the Victim's perfectDeaths
+					if (medalOrDropEvent.EventName === 'Medal' && medalOrDropEvent.Player.Gamertag === originalEvent.Killer.Gamertag) {
+						if (config.isPerfectMedal(medalOrDropEvent.MedalId)) {
+							// the killer was awarded a perfect kill (already handled in the carnage report)
+							// increment the victim's perfectDeaths
+							carnageData.users[originalEvent.Victim.Gamertag].perfectDeaths++;
+						}
+						if (config.get('medal', medalOrDropEvent.MedalId) === 'Reversal') {
+							// the killer was awarded a reversal (already handled in the carnage report)
+							// increment the victim's reversalDeaths
+							carnageData.users[originalEvent.Victim.Gamertag].reversalDeaths++;
+						}
+						if (config.get('medal', medalOrDropEvent.MedalId) === 'Stuck') {
+							// the killer was awarded a stick
+							carnageData.users[originalEvent.Victim.Gamertag].stickyDeaths++;
+						}
+						if (config.get('medal', medalOrDropEvent.MedalId) === 'Snapshot' || config.get('medal', medalOrDropEvent.MedalId) === 'Airborne Snapshot') {
+							// the killer was awarded a snapshot
+							// increment the victim's noScopeDeaths
+							carnageData.users[originalEvent.Victim.Gamertag].noScopeDeaths++;
+						}
+					}
+
+					// if we found a WeaponDrop, and the guy that is dropping the weapon is the same guy that died in the originalEvent...
+					if (medalOrDropEvent.EventName === 'WeaponDrop' && medalOrDropEvent.Player.Gamertag === originalEvent.Victim.Gamertag) {
+						dropEventsFound++;
+						if (config.isPowerWeapon(medalOrDropEvent.WeaponStockId)) {
+							// ...AND the weapon dropped was powerweapon, credit the killer with a big game kill
+							carnageData.users[originalEvent.Killer.Gamertag].bigGameKills++;
+						}
+					}
+				}
+
 				if (originalEvent.IsMelee) {
 					carnageData.users[originalEvent.Victim.Gamertag].meleeDeaths++;
 					carnageData.users[originalEvent.Killer.Gamertag].meleeKills++;
 					// return here so the melee doesnt ALSO count as a kill for that weapon
 					return;
+				}
+				if (config.isPowerWeapon(originalEvent.KillerWeaponStockId)) {
+					// died to a an enemy power weapon
+					carnageData.users[originalEvent.Victim.Gamertag].powerWeaponDeaths++
+				}
+				if (config.isAuto(originalEvent.KillerWeaponStockId)) {
+					carnageData.users[originalEvent.Killer.Gamertag].autoKills++
+					// died to a an enemy auto
+					carnageData.users[originalEvent.Victim.Gamertag].autoDeaths++
 				}
 				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'Hydra Launcher') {
 					// died to a an enemy hydra
@@ -144,6 +203,14 @@ function processEventData (events, carnageData) {
 							// if the team that picked up the weapon is different than the team that dropped the weapon, its a turnover
 							if (carnageData.users[originalEvent.Player.Gamertag].friendlyTeam !== carnageData.users[enemyPickupEvent.Player.Gamertag].friendlyTeam) {
 								carnageData.users[originalEvent.Player.Gamertag].turnovers++
+
+								// finally, if the drop was caused by a death, and the killer was an enemy, credit the killer with a forced TO
+								for (let deathEventIndex = originalEventIndex + 1; deathEventIndex < dropEventIndex; deathEventIndex++) {
+									const deathEvent = events[deathEventIndex];
+									if (deathEvent.EventName === 'Death' && deathEvent.DeathDisposition === 1 && deathEvent.Victim.Gamertag === originalEvent.Player.Gamertag) {
+										carnageData.users[deathEvent.Killer.Gamertag].forcedTurnovers++;
+									}
+								}
 							}
 							// the weapon was picked up. regardless of turnover status we are done checking future events.
 							return;

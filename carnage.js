@@ -35,8 +35,34 @@ module.exports.getCarnageReportData = function (partialUrl, friendlyTeamId, cb) 
 				}
 			};
 
+			let mostKills = {
+				name: '',
+				value: null
+			};
+			let mostAssists = {
+				name: '',
+				value: null
+			};
+			let leastDeaths = {
+				name: '',
+				value: null
+			};
 			body.PlayerStats.forEach(p => {
 				users[p.Player.Gamertag] = processPlayerStats(p, friendlyTeamId);
+				// check if the user has most-most-least
+				if (mostKills.value === null || p.TotalKills > mostKills.value) {
+					mostKills.name = p.Player.Gamertag;
+					mostKills.value = p.TotalKills;
+				}
+				if (mostAssists.value === null || p.TotalAssists > mostAssists.value) {
+					mostAssists.name = p.Player.Gamertag;
+					mostAssists.value = p.TotalAssists;
+				}
+				if (leastDeaths.value === null || p.TotalDeaths < leastDeaths.value) {
+					leastDeaths.name = p.Player.Gamertag;
+					leastDeaths.value = p.TotalDeaths;
+				}
+
 				if (p.TeamId === friendlyTeamId) {
 					teams.friendly.ids[p.Player.Gamertag] = true;
 					return;
@@ -45,6 +71,10 @@ module.exports.getCarnageReportData = function (partialUrl, friendlyTeamId, cb) 
 					teams.enemy.ids[p.Player.Gamertag] = true;
 				}
 			});
+
+			if (mostKills.name && mostKills.name === mostAssists.name === leastDeaths.name) {
+				users[mostKills.name].mostMostLeasts = 1;
+			}
 
 			body.TeamStats.forEach(t => {
 				if (t.TeamId === friendlyTeamId) {
@@ -113,6 +143,10 @@ function processPlayerStats (p, friendlyTeamId) {
 		flagJousts: 0,
 		gameSavers: 0,
 		clutchKills: 0,
+		doubleKills: 0,
+		tripleKills: 0,
+		overkillsAndBeyond: 0,
+		mostMostLeasts: 0,
 
 		// these will manually incremented during the events processing
 		pWeaponPickups: 0,
@@ -137,6 +171,16 @@ function processPlayerStats (p, friendlyTeamId) {
 		assassinationKills: 0,
 		beatDownKills: 0,
 		// beatDownDeaths: 0, // unfortunately there doesn't seem to be a great way to determine you got beat down from behind
+		totalAssistantsInDeath: 0, // used to calculate average assistants per death
+		forcedTurnovers: 0,
+		bigGameKills: 0,
+		powerWeaponDeaths: 0,
+		perfectDeaths: 0,
+		reversalDeaths: 0,
+		noScopeDeaths: 0,
+		autoKills: 0,
+		autoDeaths: 0,
+		stickyDeaths: 0,
 	};
 
 	p.WeaponStats.forEach(w => {
@@ -231,7 +275,22 @@ function processPlayerStats (p, friendlyTeamId) {
 				formattedStats.clutchKills += m.Count;
 				break;
 			case 'Beat Down':
-				formattedStats.beatDownKills+= m.Count;
+				formattedStats.beatDownKills += m.Count;
+				break;
+			case 'Double Kill':
+				formattedStats.doubleKills += m.Count;
+				break;
+			case 'Triple Kill':
+				formattedStats.tripleKills += m.Count;
+				break;
+			case 'Overkill':
+			case 'Killtacular':
+			case 'Killtrocity':
+			case 'Killamanjaro':
+			case 'Killtastrophe':
+			case 'Killpocalypse':
+			case 'Killionaire':
+				formattedStats.overkillsAndBeyond += m.Count;
 				break;
 		}
 	});

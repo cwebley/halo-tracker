@@ -10,13 +10,20 @@ const usersAggregateStatsRow = {
 	dmgDealt: 0,
 	dmgPerDeath: 0,
 	medalCount: 0,
-	perfectKills: 0,
 	firstBlood: 0,
 	distractions: 0,
 	pWeaponPickups: 0,
 	pWeaponKills: 0,
+	powerWeaponDeaths: 0,
+	perfectKills: 0,
+	perfectDeaths: 0,
+	reversals: 0,
+	reversalDeaths: 0,
+	noScopeDeaths: 0,
+	bigGameKills: 0,
+	forcedTurnovers: 0,
 	turnovers: 0,
-	medalCount: 0
+	medalCount: 0,
 };
 
 const usersNonAggregateStats = {

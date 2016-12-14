@@ -1,11 +1,12 @@
 const config = require('./config');
 const Table = require("cli-table");
+const colors = require('colors');
 
 let allAwards = {
 	entities: {
 		stupidNoob: {
 			name: 'Stupid Noob',
-			description: '(suicides and betrayals)+(groundpound deaths)+(assassination deaths)+(explosive barrel deaths)+(hydras deaths)',
+			description: '(friendlyKills)+(gpDeaths)+(assasDeaths)+(enviroDeaths)+(stickyDeaths)+(hydraDeaths)',
 			gamertags: {
 				entities: {},
 				result: []
@@ -27,9 +28,25 @@ let allAwards = {
 				result: []
 			}
 		},
+		mostOutnumbered: {
+			name: 'Most Outnumbered',
+			description: '(TotalAssistantsInDeath / Deaths) + 1',
+			gamertags: {
+				entities: {},
+				result: []
+			}
+		},
 		responsibleRyan: {
 			name: 'Responsible Ryan',
 			description: '(pWeaponPickups) / (turnovers)',
+			gamertags: {
+				entities: {},
+				result: []
+			}
+		},
+		theXFactor: {
+			name: 'The X Factor',
+			description: '(pWeaponKills / turnovers) - (powerWeaponDeaths / forcedTurnovers)',
 			gamertags: {
 				entities: {},
 				result: []
@@ -51,17 +68,9 @@ let allAwards = {
 				result: []
 			}
 		},
-		starBoy: {
-			name: 'Star Boy',
-			description: 'Number of ground pound kills',
-			gamertags: {
-				entities: {},
-				result: []
-			}
-		},
 		knockoutNicholas: {
 			name: 'Knockout Nicholas',
-			description: '(melee kills) + (beatdowns) + (spartan charge kills)',
+			description: '(2*groundPoundKills) + (melee kills) + (beatdowns) + (spartan charge kills)',
 			gamertags: {
 				entities: {},
 				result: []
@@ -77,15 +86,15 @@ let allAwards = {
 		},
 		mrClutch: {
 			name: 'Mr Clutch',
-			description: '(Game Savers) + (Clutch Kills) + (Goal Line Stands) + (Flag Jousts)',
+			description: '(2*Game Savers) + (2*Clutch Kills) + (Goal Line Stands) + (Flag Jousts)',
 			gamertags: {
 				entities: {},
 				result: []
 			}
 		},
 		dontChallengeMe: {
-			name: 'Don\'t Challenge Me',
-			description: 'Number of Reversals',
+			name: 'Don\'t Challenge Me!',
+			description: '(Reversals - ReversalDeaths)',
 			gamertags: {
 				entities: {},
 				result: []
@@ -99,19 +108,9 @@ let allAwards = {
 				result: []
 			}
 		},
-
-		// TODO all the next events
-		wheresTheStrafe: {
-			name: 'Where\'s The Strafe',
-			description: 'Number of deaths to perfect kills',
-			gamertags: {
-				entities: {},
-				result: []
-			}
-		},
-		mostMultiKills: {
-			name: 'Most Multikills',
-			description: '(Double kills * 1) + (Triple Kills * 2) + (Overkills * 3) + (Killtaculars * 4)',
+		circa2k7Chan: {
+			name: 'Circa 2k7 Chan',
+			description: '(FlagTime/10)+(FlagPulls)+(FlagCaptures)+(FlagReturns)+(ShCaptures)+(ShAssists)+(ShSecures)',
 			gamertags: {
 				entities: {},
 				result: []
@@ -119,15 +118,39 @@ let allAwards = {
 		},
 		pushbackPeter: {
 			name: 'Pushback Peter',
-			description: 'Most unaccounted damage. (Damage) / (115 * Kills + .5 * Assists)',
+			description: '(dmgDealt) - (115 * Kills) - (50 * Assists) - (15 * Headshots)',
 			gamertags: {
 				entities: {},
 				result: []
 			}
 		},
-		circa2007Chan: {
-			name: 'Circa 2007 Chan',
-			description: 'Most Objective. TBD how this is calculated',
+		multikillMartin: {
+			name: 'Multikill Martin',
+			description: '(Double kills * 1) + (Triple Kills * 2) + (OverkillsAndBeyond * 3)',
+			gamertags: {
+				entities: {},
+				result: []
+			}
+		},
+		mostMostMostLeasts: {
+			name: 'Most Most-Most-Leasts',
+			description: 'Number of games with most kills, most assists, leasts deaths',
+			gamertags: {
+				entities: {},
+				result: []
+			}
+		},
+		wheresTheStrafe: {
+			name: 'Where\'s The Strafe?',
+			description: '(perfectDeaths) + (noScopeDeaths)',
+			gamertags: {
+				entities: {},
+				result: []
+			}
+		},
+		theFutureOfHalo: {
+			name: 'The Future Of Halo',
+			description: '(autoKills) - (autoDeaths)',
 			gamertags: {
 				entities: {},
 				result: []
@@ -170,11 +193,12 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 					assassinationDeaths: 0,
 					environmentalDeaths: 0,
 					hydraDeaths: 0,
+					stickyDeaths: 0,
 					get longform () {
-						return `${this.name}: ${this.value} (${this.friendlyKills} + ${this.groundPoundDeaths} + ${this.assassinationDeaths} + ${this.environmentalDeaths} + ${this.hydraDeaths})`;
+						return `(${this.friendlyKills}+${this.groundPoundDeaths}+${this.assassinationDeaths}+${this.environmentalDeaths}+${this.stickyDeaths}+${this.hydraDeaths})`;
 					},
 					get value () {
-						return this.friendlyKills + this.groundPoundDeaths + this.assassinationDeaths + this.environmentalDeaths + this.hydraDeaths;
+						return this.friendlyKills + this.groundPoundDeaths + this.assassinationDeaths + this.environmentalDeaths + this.stickyDeaths + this.hydraDeaths;
 					}
 				};
 				allAwards.entities.stupidNoob.gamertags.result.push(friendlyTag);
@@ -192,7 +216,7 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 					splinterKills: 0,
 					splinterDeaths: 0,
 					get longform () {
-						return `${this.name}: ${this.value} (${this.splinterKills} - ${this.splinterDeaths})`;
+						return `(${this.splinterKills} - ${this.splinterDeaths})`;
 					},
 					get value () {
 						return this.splinterKills - this.splinterDeaths;
@@ -208,9 +232,6 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 				allAwards.entities.loneWolf.gamertags.entities[friendlyTag] = {
 					name: friendlyTag,
 					unassistedKills: 0,
-					get longform () {
-						return `${this.name}: ${this.value}`;
-					},
 					get value () {
 						return this.unassistedKills;
 					}
@@ -224,9 +245,6 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 				allAwards.entities.hereForTheFireworks.gamertags.entities[friendlyTag] = {
 					name: friendlyTag,
 					barrelDestroys: 0,
-					get longform () {
-						return `${this.name}: ${this.value}`;
-					},
 					get value () {
 						return this.barrelDestroys;
 					}
@@ -240,9 +258,6 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 				allAwards.entities.demolitionExpert.gamertags.entities[friendlyTag] = {
 					name: friendlyTag,
 					environmentalKills: 0,
-					get longform () {
-						return `${this.name}: ${this.value}`;
-					},
 					get value () {
 						return this.environmentalKills;
 					}
@@ -251,38 +266,24 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 			}
 			allAwards.entities.demolitionExpert.gamertags.entities[friendlyTag].environmentalKills += m.users[friendlyTag].environmentalKills;
 
-			// starBoy
-			if (!allAwards.entities.starBoy.gamertags.entities[friendlyTag]) {
-				allAwards.entities.starBoy.gamertags.entities[friendlyTag] = {
-					name: friendlyTag,
-					groundPoundKills: 0,
-					get longform () {
-						return `${this.name}: ${this.value}`;
-					},
-					get value () {
-						return this.groundPoundKills;
-					}
-				};
-				allAwards.entities.starBoy.gamertags.result.push(friendlyTag);
-			}
-			allAwards.entities.starBoy.gamertags.entities[friendlyTag].groundPoundKills += m.users[friendlyTag].groundPoundKills;
-
 			// knockoutNicholas
 			if (!allAwards.entities.knockoutNicholas.gamertags.entities[friendlyTag]) {
 				allAwards.entities.knockoutNicholas.gamertags.entities[friendlyTag] = {
 					name: friendlyTag,
+					groundPoundKills: 0,
 					meleeKills: 0,
 					spartanChargeKills: 0,
 					beatDownKills: 0,
 					get longform () {
-						return `${this.name}: ${this.value} (${this.meleeKills} + ${this.spartanChargeKills} + ${this.beatDownKills})`;
+						return `(2*${this.groundPoundKills} + ${this.meleeKills} + ${this.spartanChargeKills} + ${this.beatDownKills})`;
 					},
 					get value () {
-						return this.meleeKills + this.spartanChargeKills + this.beatDownKills;
+						return 2 * this.groundPoundKills + this.meleeKills + this.spartanChargeKills + this.beatDownKills;
 					}
 				};
 				allAwards.entities.knockoutNicholas.gamertags.result.push(friendlyTag);
 			}
+			allAwards.entities.knockoutNicholas.gamertags.entities[friendlyTag].groundPoundKills += m.users[friendlyTag].groundPoundKills;
 			allAwards.entities.knockoutNicholas.gamertags.entities[friendlyTag].meleeKills += m.users[friendlyTag].meleeKills;
 			allAwards.entities.knockoutNicholas.gamertags.entities[friendlyTag].spartanChargeKills += m.users[friendlyTag].spartanChargeKills;
 			allAwards.entities.knockoutNicholas.gamertags.entities[friendlyTag].beatDownKills += m.users[friendlyTag].beatDownKills;
@@ -294,7 +295,7 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 					meleeDeaths: 0,
 					spartanChargeDeaths: 0,
 					get longform () {
-						return `${this.name}: ${this.value} (${this.meleeDeaths} + ${this.spartanChargeDeaths})`;
+						return `(${this.meleeDeaths} + ${this.spartanChargeDeaths})`;
 					},
 					get value () {
 						return this.meleeDeaths + this.spartanChargeDeaths;
@@ -314,10 +315,10 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 					goalLineStands: 0,
 					flagJousts: 0,
 					get longform () {
-						return `${this.name}: ${this.value} (${this.gameSavers} + ${this.clutchKills} + ${this.goalLineStands} + ${this.flagJousts})`;
+						return `(2*${this.gameSavers} + 2*${this.clutchKills} + ${this.goalLineStands} + ${this.flagJousts})`;
 					},
 					get value () {
-						return this.gameSavers + this.clutchKills + this.goalLineStands + this.flagJousts;
+						return (2*this.gameSavers) + (2*this.clutchKills) + this.goalLineStands + this.flagJousts;
 					}
 				};
 				allAwards.entities.mrClutch.gamertags.result.push(friendlyTag);
@@ -332,16 +333,134 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 				allAwards.entities.dontChallengeMe.gamertags.entities[friendlyTag] = {
 					name: friendlyTag,
 					reversals: 0,
+					reversalDeaths: 0,
 					get longform () {
-						return `${this.name}: ${this.value}`;
+						return `(${this.reversals} - ${this.reversalDeaths})`
 					},
 					get value () {
-						return this.reversals;
+						return this.reversals - this.reversalDeaths;
 					}
 				};
 				allAwards.entities.dontChallengeMe.gamertags.result.push(friendlyTag);
 			}
 			allAwards.entities.dontChallengeMe.gamertags.entities[friendlyTag].reversals += m.users[friendlyTag].reversals;
+			allAwards.entities.dontChallengeMe.gamertags.entities[friendlyTag].reversalDeaths += m.users[friendlyTag].reversalDeaths;
+
+			//  circa2k7Chan
+			if (!allAwards.entities.circa2k7Chan.gamertags.entities[friendlyTag]) {
+				allAwards.entities.circa2k7Chan.gamertags.entities[friendlyTag] = {
+					name: friendlyTag,
+					flagTime: 0,
+					flagPulls: 0,
+					flagCaptures: 0,
+					flagReturns: 0,
+					shCaptures: 0,
+					shAssists: 0,
+					shSecures: 0,
+					get longform () {
+						return `(${this.flagTime}/10 + ${this.flagPulls} + ${this.flagCaptures} + ${this.flagReturns} + ${this.shCaptures} + ${this.shAssists} + ${this.shSecures})`;
+					},
+					get value () {
+						return Math.ceil(this.flagTime/10)+this.flagPulls+this.flagCaptures+this.flagReturns+this.shCaptures+this.shAssists+this.shSecures;
+					}
+				};
+				allAwards.entities.circa2k7Chan.gamertags.result.push(friendlyTag);
+			}
+			allAwards.entities.circa2k7Chan.gamertags.entities[friendlyTag].flagTime += m.users[friendlyTag].flagTime;
+			allAwards.entities.circa2k7Chan.gamertags.entities[friendlyTag].flagPulls += m.users[friendlyTag].flagPulls;
+			allAwards.entities.circa2k7Chan.gamertags.entities[friendlyTag].flagCaptures += m.users[friendlyTag].flagCaptures;
+			allAwards.entities.circa2k7Chan.gamertags.entities[friendlyTag].flagReturns += m.users[friendlyTag].flagReturns;
+			allAwards.entities.circa2k7Chan.gamertags.entities[friendlyTag].shCaptures += m.users[friendlyTag].shCaptures;
+			allAwards.entities.circa2k7Chan.gamertags.entities[friendlyTag].shAssists += m.users[friendlyTag].shAssists;
+			allAwards.entities.circa2k7Chan.gamertags.entities[friendlyTag].shSecures += m.users[friendlyTag].shSecures;
+
+			//  multikillMartin
+			if (!allAwards.entities.multikillMartin.gamertags.entities[friendlyTag]) {
+				allAwards.entities.multikillMartin.gamertags.entities[friendlyTag] = {
+					name: friendlyTag,
+					doubleKills: 0,
+					tripleKills: 0,
+					overkillsAndBeyond: 0,
+					get longform () {
+						return `(${this.doubleKills} + ${this.tripleKills}*2 + ${this.overkillsAndBeyond}*3)`;
+					},
+					get value () {
+						return this.doubleKills + this.tripleKills * 2 + this.overkillsAndBeyond * 3;
+					}
+				};
+				allAwards.entities.multikillMartin.gamertags.result.push(friendlyTag);
+			}
+			allAwards.entities.multikillMartin.gamertags.entities[friendlyTag].doubleKills += m.users[friendlyTag].doubleKills;
+			allAwards.entities.multikillMartin.gamertags.entities[friendlyTag].tripleKills += m.users[friendlyTag].tripleKills;
+			allAwards.entities.multikillMartin.gamertags.entities[friendlyTag].overkillsAndBeyond += m.users[friendlyTag].overkillsAndBeyond;
+
+			//  mostMostMostLeasts
+			if (!allAwards.entities.mostMostMostLeasts.gamertags.entities[friendlyTag]) {
+				allAwards.entities.mostMostMostLeasts.gamertags.entities[friendlyTag] = {
+					name: friendlyTag,
+					mostMostLeasts: 0,
+					get value () {
+						return this.mostMostLeasts;
+					}
+				};
+				allAwards.entities.mostMostMostLeasts.gamertags.result.push(friendlyTag);
+			}
+			allAwards.entities.mostMostMostLeasts.gamertags.entities[friendlyTag].mostMostLeasts += m.users[friendlyTag].mostMostLeasts;
+
+			//  mostOutnumbered
+			if (!allAwards.entities.mostOutnumbered.gamertags.entities[friendlyTag]) {
+				allAwards.entities.mostOutnumbered.gamertags.entities[friendlyTag] = {
+					name: friendlyTag,
+					deaths: 0,
+					totalAssistantsInDeath: 0,
+					get longform () {
+						return `((${this.totalAssistantsInDeath} / ${this.deaths}) + 1)`
+					},
+					get value () {
+						return Math.round(100 * (1 + (this.totalAssistantsInDeath / this.deaths))) / 100;
+					}
+				};
+				allAwards.entities.mostOutnumbered.gamertags.result.push(friendlyTag);
+			}
+			allAwards.entities.mostOutnumbered.gamertags.entities[friendlyTag].deaths += m.users[friendlyTag].deaths;
+			allAwards.entities.mostOutnumbered.gamertags.entities[friendlyTag].totalAssistantsInDeath += m.users[friendlyTag].totalAssistantsInDeath;
+
+			//  wheresTheStrafe
+			if (!allAwards.entities.wheresTheStrafe.gamertags.entities[friendlyTag]) {
+				allAwards.entities.wheresTheStrafe.gamertags.entities[friendlyTag] = {
+					name: friendlyTag,
+					perfectDeaths: 0,
+					noScopeDeaths: 0,
+					get longform () {
+						return `(${this.perfectDeaths} + ${this.noScopeDeaths})`
+					},
+					get value () {
+						return this.perfectDeaths + this.noScopeDeaths;
+					}
+				};
+				allAwards.entities.wheresTheStrafe.gamertags.result.push(friendlyTag);
+			}
+			allAwards.entities.wheresTheStrafe.gamertags.entities[friendlyTag].perfectDeaths += m.users[friendlyTag].perfectDeaths;
+			allAwards.entities.wheresTheStrafe.gamertags.entities[friendlyTag].noScopeDeaths += m.users[friendlyTag].noScopeDeaths;
+
+			//  theFutureOfHalo
+			if (!allAwards.entities.theFutureOfHalo.gamertags.entities[friendlyTag]) {
+				allAwards.entities.theFutureOfHalo.gamertags.entities[friendlyTag] = {
+					name: friendlyTag,
+					autoKills: 0,
+					autoDeaths: 0,
+					get longform () {
+						return `(${this.autoKills} - ${this.autoDeaths})`
+					},
+					get value () {
+						return this.autoKills - this.autoDeaths;
+					}
+				};
+				allAwards.entities.theFutureOfHalo.gamertags.result.push(friendlyTag);
+			}
+			allAwards.entities.theFutureOfHalo.gamertags.entities[friendlyTag].autoKills += m.users[friendlyTag].autoKills;
+			allAwards.entities.theFutureOfHalo.gamertags.entities[friendlyTag].autoDeaths += m.users[friendlyTag].autoDeaths;
+
 		}); // done iterating through teammates
 	}); // done iterating through matches
 
@@ -349,9 +468,6 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 		allAwards.entities.bestDuo.gamertags.entities[duoName] = {
 			name: duoName,
 			duoKills: duoTotals.entities[duoName],
-			get longform () {
-				return `${this.name}: ${this.value}`;
-			},
 			get value () {
 				return this.duoKills;
 			}
@@ -359,28 +475,63 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 		allAwards.entities.bestDuo.gamertags.result.push(duoName);
 	});
 
-	// Responsible Ryan
 	usersTable.forEach(user => {
 		if (config.isRandomTeammate(user.name, true)) {
 			return;
 		}
+		// responsibleRyan
 		allAwards.entities.responsibleRyan.gamertags.entities[user.name] = {
 			name: user.name,
 			pWeaponPickups: user.pWeaponPickups,
 			turnovers: user.turnovers,
 			get longform () {
-				return `${this.name}: ${this.value} (${this.pWeaponPickups} / ${this.turnovers})`;
+				return `(${this.pWeaponPickups} / ${this.turnovers})`;
 			},
 			get value () {
-				return Math.floor(this.pWeaponPickups / this.turnovers);
+				return Math.round(100 * this.pWeaponPickups / this.turnovers) / 100;
 			}
 		};
 		allAwards.entities.responsibleRyan.gamertags.result.push(user.name);
+		// theXFactor
+		allAwards.entities.theXFactor.gamertags.entities[user.name] = {
+			name: user.name,
+			pWeaponKills: user.pWeaponKills,
+			turnovers: user.turnovers,
+			powerWeaponDeaths: user.powerWeaponDeaths,
+			forcedTurnovers: user.forcedTurnovers,
+			get longform () {
+				return `((${this.pWeaponKills} / ${this.turnovers}) - (${this.powerWeaponDeaths} / ${this.forcedTurnovers}))`;
+			},
+			get value () {
+				return Math.round(100 * ((this.pWeaponKills / this.turnovers) - (this.powerWeaponDeaths / this.forcedTurnovers))) / 100;
+			}
+		};
+		allAwards.entities.theXFactor.gamertags.result.push(user.name);
+
+		// pushbackPeter
+		allAwards.entities.pushbackPeter.gamertags.entities[user.name] = {
+			name: user.name,
+			dmgDealt: user.dmgDealt,
+			kills: user.kills,
+			assists: user.assists,
+			headshots: user.headshots,
+			get longform () {
+				return `(${this.dmgDealt} - 115*${this.kills} - 50*${this.assists} - 15*${this.headshots})`;
+			},
+			get value () {
+				return this.dmgDealt - (115 * this.kills) - (50 * this.assists) - (15 * this.headshots)
+			}
+		};
+		allAwards.entities.pushbackPeter.gamertags.result.push(user.name);
 	});
 
 	let prettyTable = new Table({
 		head: ['Award', 'Winner', 'Runner Ups', 'Description']
 	});
+
+	const getAndStyleRow = (gamertagResult, opts = { winner: false }) => {
+		return `${opts.winner ? gamertagResult.name.bold : gamertagResult.name}: ${gamertagResult.value.toString().italic} ${gamertagResult.longform ? gamertagResult.longform.dim : ''}`;
+	};
 
 	// sort all the awards by the value property of each gamertag
 	Object.keys(allAwards.entities).forEach(awardName => {
@@ -391,8 +542,17 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 		award.gamertags.result.sort((prevTag, nextTag) => {
 			return award.gamertags.entities[nextTag].value - award.gamertags.entities[prevTag].value;
 		});
+		// if first place is a tie, dont include the award
+		if (award.gamertags.entities[award.gamertags.result[0]].value === award.gamertags.entities[award.gamertags.result[1]].value) {
+			return;
+		}
 
-		prettyTable.push([award.name, award.gamertags.entities[award.gamertags.result[0]].longform, award.gamertags.result.slice(1, 4).map(runnerupTag => award.gamertags.entities[runnerupTag].longform).join(' | '), award.description]);
+		prettyTable.push([
+			award.name,
+			getAndStyleRow(award.gamertags.entities[award.gamertags.result[0]], { winner: true }),
+			award.gamertags.result.slice(1, 4).map(runnerupTag => getAndStyleRow(award.gamertags.entities[runnerupTag])).join(' | '),
+			award.description
+		]);
 	});
 
 	return prettyTable.toString();
