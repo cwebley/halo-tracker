@@ -6,7 +6,6 @@ find the start of the session based on time, not based on simply finding a custo
 might be worthwhile to track turnovered weapons and see if they resulted in kills
 
 awards:
-	longest range AR kill, magnum kill
 	most frantic (highest average distance traveled available)
 	most close range weapon kills?
 
@@ -17,9 +16,6 @@ awards:
 	Noob hunter (best pvp against low csr guys)
 	where the ammo? picked up the least weapons
 	Plato/Cornucopia. kill with the biggest variety of weapons on average
-	add most beatdown deaths using event medals
-	most stuck using event medals
-	Where's the Cover? (most perfected using event medals + railgun deaths + hydra deaths)
 	pistol drops for rifle or ar drops for rifle?
 
 	most improved: save data from previous session in a file and point to it or something

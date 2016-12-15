@@ -1,5 +1,6 @@
 const request = require('request');
 const moment = require('moment');
+const distance = require('euclidean-distance');
 const config = require('./config');
 const limiter = config.limiter;
 
@@ -110,6 +111,15 @@ function processEventData (events, carnageData) {
 					}
 				}
 
+
+				// find out how far away the killer was from the victim
+				const killerLocation = originalEvent.KillerWorldLocation;
+				const victimLocation = originalEvent.VictimWorldLocation;
+
+				const killDistance = Math.round(100 * distance([killerLocation.x, killerLocation.y, killerLocation.z], [victimLocation.x, victimLocation.y, victimLocation.z])) / 100;
+				carnageData.users[originalEvent.Killer.Gamertag].totalKillDistance += killDistance;
+
+
 				if (originalEvent.IsMelee) {
 					carnageData.users[originalEvent.Victim.Gamertag].meleeDeaths++;
 					carnageData.users[originalEvent.Killer.Gamertag].meleeKills++;
@@ -128,6 +138,19 @@ function processEventData (events, carnageData) {
 				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'Hydra Launcher') {
 					// died to a an enemy hydra
 					carnageData.users[originalEvent.Victim.Gamertag].hydraDeaths++
+				}
+				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'Magnum') {
+
+					// died to a an enemy magnum
+					carnageData.users[originalEvent.Killer.Gamertag].longestMagnumKill = Math.max(carnageData.users[originalEvent.Killer.Gamertag].longestMagnumKill, killDistance);
+				}
+				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'Assault Rifle') {
+					// died to a an enemy AR
+					carnageData.users[originalEvent.Killer.Gamertag].longestArKill = Math.max(carnageData.users[originalEvent.Killer.Gamertag].longestArKill, killDistance);
+				}
+				if (config.isRifle(originalEvent.KillerWeaponStockId)) {
+					// died to a an enemy rifle
+					carnageData.users[originalEvent.Killer.Gamertag].longestRifleKill = Math.max(carnageData.users[originalEvent.Killer.Gamertag].longestRifleKill, killDistance);
 				}
 				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'SPLINTER GRENADE') {
 					// died to a an enemy splinter

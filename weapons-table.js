@@ -6,17 +6,20 @@ const weaponsTableBaseRow = {
 	magnumAccuracy: 0,
 	magnumDmg: 0,
 	magnumHeadshots: 0,
+	// longestMagnumKill: 0,
 	magnumKills: 0,
 	arShots: 0,
 	arHits: 0,
 	arAccuracy: 0,
 	arDmg: 0,
+	// longestArKill: 0,
 	arKills: 0,
 	rifleHits: 0,
 	rifleShots: 0,
 	rifleAccuracy: 0,
 	rifleDmg: 0,
 	rifleHeadshots: 0,
+	// longestRifleKill: 0,
 	rifleKills: 0,
 	totalGrenadeKills: 0,
 	hydraKills: 0,
@@ -47,8 +50,14 @@ module.exports.getWeaponsTable = function (allMatchData) {
 				usersOverall.entities.all[key] += m.users[friendlyTag][key];
 				usersOverall.entities[friendlyTag][key] += m.users[friendlyTag][key];
 			});
+			usersOverall.entities[friendlyTag].longestArKill = Math.max(m.users[friendlyTag].longestArKill, usersOverall.entities[friendlyTag].longestArKill || 0);
+			usersOverall.entities[friendlyTag].longestMagnumKill = Math.max(m.users[friendlyTag].longestMagnumKill, usersOverall.entities[friendlyTag].longestMagnumKill || 0);
+			usersOverall.entities[friendlyTag].longestRifleKill = Math.max(m.users[friendlyTag].longestRifleKill, usersOverall.entities[friendlyTag].longestRifleKill || 0);
 		});
 	});
+	usersOverall.entities.all.longestArKill = 'N/A';
+	usersOverall.entities.all.longestMagnumKill = 'N/A';
+	usersOverall.entities.all.longestRifleKill = 'N/A';
 
 	// now we do whatever we need to do after we have aggregated all games
 	const numberOfRandoms = usersOverall.result.reduce((randomCount, currentUser) => {
@@ -77,7 +86,8 @@ module.exports.getWeaponsTable = function (allMatchData) {
 	// our final data structure has 'all', followed by the non random teammates...
 	usersOverall.result = usersOverall.result.filter(user => user === 'all' || !config.isRandomTeammate(user, true))
 	// ...plus the average stats for all of the random teammates
-	usersOverall.result.push('Random Teammate');
+	// TODO
+	// usersOverall.result.push('Random Teammate');
 	usersOverall.entities['Random Teammate'] = randomTeammateStats;
 	return usersOverall.result.map(u => usersOverall.entities[u]);
 }

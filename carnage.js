@@ -170,7 +170,7 @@ function processPlayerStats (p, friendlyTeamId) {
 		assassinationDeaths: 0,
 		assassinationKills: 0,
 		beatDownKills: 0,
-		// beatDownDeaths: 0, // unfortunately there doesn't seem to be a great way to determine you got beat down from behind
+		// beatDownDeaths: 0, // unfortunately there doesn't seem to be a great way to determine you got beat down from behind TODO use medals to get this
 		totalAssistantsInDeath: 0, // used to calculate average assistants per death
 		forcedTurnovers: 0,
 		bigGameKills: 0,
@@ -181,6 +181,10 @@ function processPlayerStats (p, friendlyTeamId) {
 		autoKills: 0,
 		autoDeaths: 0,
 		stickyDeaths: 0,
+		totalKillDistance: 0,
+		longestMagnumKill: 0,
+		longestArKill: 0,
+		longestRifleKill: 0,
 	};
 
 	p.WeaponStats.forEach(w => {

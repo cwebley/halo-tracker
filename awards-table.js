@@ -22,7 +22,7 @@ let allAwards = {
 		},
 		loneWolf: {
 			name: 'Lone Wolf',
-			description: 'Number of unassisted kills',
+			description: '(unassistedKills / kills)',
 			gamertags: {
 				entities: {},
 				result: []
@@ -110,7 +110,7 @@ let allAwards = {
 		},
 		circa2k7Chan: {
 			name: 'Circa 2k7 Chan',
-			description: '(FlagTime/10)+(FlagPulls)+(FlagCaptures)+(FlagReturns)+(ShCaptures)+(ShAssists)+(ShSecures)',
+			description: '(FlgTime/10)+(FlgPickups/10)+(FlgPulls)+(FlgCaps)+(FlgRtrns)+(ShCaps)+(ShAssists)+(ShSecs)',
 			gamertags: {
 				entities: {},
 				result: []
@@ -118,7 +118,7 @@ let allAwards = {
 		},
 		pushbackPeter: {
 			name: 'Pushback Peter',
-			description: '(dmgDealt) - (115 * Kills) - (50 * Assists) - (15 * Headshots)',
+			description: '(dmgDealt) - (100 * Kills) - (50 * Assists) - (15 * Headshots)',
 			gamertags: {
 				entities: {},
 				result: []
@@ -151,6 +151,22 @@ let allAwards = {
 		theFutureOfHalo: {
 			name: 'The Future Of Halo',
 			description: '(autoKills) - (autoDeaths)',
+			gamertags: {
+				entities: {},
+				result: []
+			}
+		},
+		stayAwayFromMe: {
+			name: 'Stay Away From Me!',
+			description: '(totalKillDistance / kills)',
+			gamertags: {
+				entities: {},
+				result: []
+			}
+		},
+		mrDowntown: {
+			name: 'Mr Downtown',
+			description: 'Longest distance magnum kill',
 			gamertags: {
 				entities: {},
 				result: []
@@ -232,13 +248,18 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 				allAwards.entities.loneWolf.gamertags.entities[friendlyTag] = {
 					name: friendlyTag,
 					unassistedKills: 0,
+					kills: 0,
+					get longform () {
+						return `${this.unassistedKills} / ${this.kills}`;
+					},
 					get value () {
-						return this.unassistedKills;
+						return Math.round(100 * this.unassistedKills / this.kills) / 100;
 					}
 				};
 				allAwards.entities.loneWolf.gamertags.result.push(friendlyTag);
 			}
 			allAwards.entities.loneWolf.gamertags.entities[friendlyTag].unassistedKills += m.users[friendlyTag].unassistedKills;
+			allAwards.entities.loneWolf.gamertags.entities[friendlyTag].kills += m.users[friendlyTag].kills;
 
 			// hereForTheFireworks
 			if (!allAwards.entities.hereForTheFireworks.gamertags.entities[friendlyTag]) {
@@ -357,11 +378,12 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 					shCaptures: 0,
 					shAssists: 0,
 					shSecures: 0,
+					flagsPickedUp: 0,
 					get longform () {
-						return `(${this.flagTime}/10 + ${this.flagPulls} + ${this.flagCaptures} + ${this.flagReturns} + ${this.shCaptures} + ${this.shAssists} + ${this.shSecures})`;
+						return `((${this.flagTime}/10)+(${this.flagsPickedUp}/10)+${this.flagPulls}+${this.flagCaptures}+${this.flagReturns}+${this.shCaptures}+${this.shAssists}+${this.shSecures})`;
 					},
 					get value () {
-						return Math.ceil(this.flagTime/10)+this.flagPulls+this.flagCaptures+this.flagReturns+this.shCaptures+this.shAssists+this.shSecures;
+						return Math.ceil(this.flagTime/10)+Math.round(this.flagsPickedUp / 10)+this.flagPulls+this.flagCaptures+this.flagReturns+this.shCaptures+this.shAssists+this.shSecures;
 					}
 				};
 				allAwards.entities.circa2k7Chan.gamertags.result.push(friendlyTag);
@@ -373,6 +395,7 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 			allAwards.entities.circa2k7Chan.gamertags.entities[friendlyTag].shCaptures += m.users[friendlyTag].shCaptures;
 			allAwards.entities.circa2k7Chan.gamertags.entities[friendlyTag].shAssists += m.users[friendlyTag].shAssists;
 			allAwards.entities.circa2k7Chan.gamertags.entities[friendlyTag].shSecures += m.users[friendlyTag].shSecures;
+			allAwards.entities.circa2k7Chan.gamertags.entities[friendlyTag].flagsPickedUp += m.users[friendlyTag].flagsPickedUp;
 
 			//  multikillMartin
 			if (!allAwards.entities.multikillMartin.gamertags.entities[friendlyTag]) {
@@ -461,6 +484,36 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 			allAwards.entities.theFutureOfHalo.gamertags.entities[friendlyTag].autoKills += m.users[friendlyTag].autoKills;
 			allAwards.entities.theFutureOfHalo.gamertags.entities[friendlyTag].autoDeaths += m.users[friendlyTag].autoDeaths;
 
+			//  stayAwayFromMe
+			if (!allAwards.entities.stayAwayFromMe.gamertags.entities[friendlyTag]) {
+				allAwards.entities.stayAwayFromMe.gamertags.entities[friendlyTag] = {
+					name: friendlyTag,
+					totalKillDistance: 0,
+					kills: 0,
+					get longform () {
+						return `(${Math.round(100 * this.totalKillDistance / this.kills)} / ${this.kills})`
+					},
+					get value () {
+						return Math.round(100 * this.totalKillDistance / this.kills) / 100;
+					}
+				};
+				allAwards.entities.stayAwayFromMe.gamertags.result.push(friendlyTag);
+			}
+			allAwards.entities.stayAwayFromMe.gamertags.entities[friendlyTag].totalKillDistance += m.users[friendlyTag].totalKillDistance;
+			allAwards.entities.stayAwayFromMe.gamertags.entities[friendlyTag].kills += m.users[friendlyTag].kills;
+
+			//  mrDowntown
+			if (!allAwards.entities.mrDowntown.gamertags.entities[friendlyTag]) {
+				allAwards.entities.mrDowntown.gamertags.entities[friendlyTag] = {
+					name: friendlyTag,
+					longestMagnumKill: 0,
+					get value () {
+						return this.longestMagnumKill;
+					}
+				};
+				allAwards.entities.mrDowntown.gamertags.result.push(friendlyTag);
+			}
+			allAwards.entities.mrDowntown.gamertags.entities[friendlyTag].longestMagnumKill = Math.max(m.users[friendlyTag].longestMagnumKill || 0, allAwards.entities.mrDowntown.gamertags.entities[friendlyTag].longestMagnumKill);
 		}); // done iterating through teammates
 	}); // done iterating through matches
 
@@ -516,10 +569,10 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 			assists: user.assists,
 			headshots: user.headshots,
 			get longform () {
-				return `(${this.dmgDealt} - 115*${this.kills} - 50*${this.assists} - 15*${this.headshots})`;
+				return `(${this.dmgDealt} - 100*${this.kills} - 50*${this.assists} - 15*${this.headshots})`;
 			},
 			get value () {
-				return this.dmgDealt - (115 * this.kills) - (50 * this.assists) - (15 * this.headshots)
+				return this.dmgDealt - (100 * this.kills) - (50 * this.assists) - (15 * this.headshots)
 			}
 		};
 		allAwards.entities.pushbackPeter.gamertags.result.push(user.name);

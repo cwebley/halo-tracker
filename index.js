@@ -51,9 +51,10 @@ metadata.getMetadata((err, { maps, medals, impulses, weapons, gameTypes }) => {
 		return;
 	}
 
-	matches.getMatches(program.args[0], {
+	matches.getMatches({
+		gamertag: program.args[0],
 		skip: program.skip || 0,
-		count: program.count || 25
+		count: program.count
 	}, (err, matchesData) => {
 		if (err) {
 			console.error(`Error fetching matches: ${err}`);

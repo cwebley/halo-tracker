@@ -63,7 +63,7 @@ module.exports.getCtfTable = function (allMatchData) {
 	// our final data structure has 'all', followed by the non random teammates...
 	usersOverall.result = usersOverall.result.filter(user => user === 'all' || !config.isRandomTeammate(user, true))
 	// ...plus the average stats for all of the random teammates
-	usersOverall.result.push('Random Teammate');
+	// usersOverall.result.push('Random Teammate');
 	usersOverall.entities['Random Teammate'] = randomTeammateStats;
 	return usersOverall.result.map(u => usersOverall.entities[u]);
 }

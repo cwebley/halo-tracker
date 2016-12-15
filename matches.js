@@ -2,16 +2,19 @@ const request = require('request');
 const config = require('./config');
 const limiter = config.limiter;
 
-// fetches the most recent 25 games and only returns the most recent games that are arena (GameMode = 1)
-// there is no pagination right now if the session is longer than 25 games
-module.exports.getMatches = function (gamertag, { skip, count }, cb) {
-	console.info(`Fetching matches for ${gamertag}`);
+module.exports.getMatches = function getMatches ({ gamertag, skip, count, matches }, cb) {
+	if (!matches || !matches.length) {
+		matches = [];
+	}
+	const effectiveCount = count && count < 25 ? count : 25;
+	console.info(`Fetching ${effectiveCount} matches for ${gamertag} (skipping ${skip})`);
 	limiter.removeTokens(1, (err, remainingTokens) => {
 		request({
 			method: 'GET',
-			uri: config.getMatchesUrl(gamertag, {
+			uri: config.getMatchesUrl({
+				gamertag,
 				start: skip,
-				count
+				count: effectiveCount
 			}),
 			json: true,
 			headers: {
@@ -29,7 +32,7 @@ module.exports.getMatches = function (gamertag, { skip, count }, cb) {
 			}
 
 			// find the beginning of the session (1 arena, 2 campaign, 3 custom, 4 warzone)
-			let startOfSessionIndex = body.Results.length;
+			let startOfSessionIndex;
 			for (let i=0; i < body.Results.length; i++) {
 				if (body.Results[i].Id.GameMode !== 1) {
 					// beginning of the session found
@@ -38,8 +41,31 @@ module.exports.getMatches = function (gamertag, { skip, count }, cb) {
 				}
 			}
 
-			// only include the current arena session
-			cb(null, body.Results.slice(0, startOfSessionIndex));
+			// start of session found
+			if (startOfSessionIndex !== undefined) {
+				// found the beginning of the session
+				Array.prototype.push.apply(matches, body.Results.slice(0, startOfSessionIndex));
+				cb(null, matches);
+				return;
+			}
+
+			// push all the results onto our matches array regardless of whether we need to fetch more
+			Array.prototype.push.apply(matches, body.Results);
+
+			// end of count reached and start of session not found
+			if (body.Results.length === count) {
+				cb(null, matches);
+				return;
+			}
+
+			// neither start of session found nor end of count reached--recursively paginate
+			getMatches({
+				gamertag,
+				skip: skip + effectiveCount,
+				count: count - effectiveCount,
+				matches
+			}, cb);
+			return;
 		});
 	});
-};
+}

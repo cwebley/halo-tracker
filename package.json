@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run start-moo",
-    "start-moo": "node index.js 'The Furious Moo' 'WWMJPD' 'I chan I' 'TFA Ch3ckMate' 'TeeMore' 'Victory is BACK'"
+    "start-moo": "node index.js 'The Furious Moo' 'WWMJPD' 'I chan I' 'TFA Ch3ckMate' 'TeeMore' 'Victory is BACK' --count 1 --skip 20"
   },
   "author": "cwebley <cameron.webley@gmail.com>",
   "license": "MIT",
@@ -14,6 +14,7 @@
     "colors": "^1.1.2",
     "commander": "^2.9.0",
     "console.table": "^0.7.0",
+    "euclidean-distance": "^1.0.0",
     "limiter": "^1.1.0",
     "moment": "^2.17.1",
     "neo-async": "^2.0.1",

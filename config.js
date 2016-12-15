@@ -9,7 +9,7 @@ module.exports.getMetaDataUrl = function (type) {
 	return `https://www.haloapi.com/metadata/h5/metadata/${type}`;
 }
 
-module.exports.getMatchesUrl = function (gamertag, { start, count }) {
+module.exports.getMatchesUrl = function ({ gamertag, start, count }) {
 	return `https://www.haloapi.com/stats/h5/players/${gamertag}/matches?start=${start}&count=${count}`;
 }
 
