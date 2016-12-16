@@ -36,31 +36,43 @@ module.exports.getCarnageReportData = function (partialUrl, friendlyTeamId, cb) 
 			};
 
 			let mostKills = {
-				name: '',
-				value: null
+				names: [],
+				value: 0
 			};
 			let mostAssists = {
-				name: '',
-				value: null
+				names: [],
+				value: 0
 			};
 			let leastDeaths = {
-				name: '',
+				names: [],
 				value: null
 			};
 			body.PlayerStats.forEach(p => {
 				users[p.Player.Gamertag] = processPlayerStats(p, friendlyTeamId);
-				// check if the user has most-most-least
-				if (mostKills.value === null || p.TotalKills > mostKills.value) {
-					mostKills.name = p.Player.Gamertag;
+				// check if the user has most Kills
+				if (p.TotalKills > mostKills.value) {
+					mostKills.names = [p.Player.Gamertag];
 					mostKills.value = p.TotalKills;
 				}
+				// if theres a tie, add the user to the names array
+				if (p.TotalKills === mostKills.value) {
+					mostKills.names.push(p.Player.Gamertag);
+				}
+				// check if the user has most Assists
 				if (mostAssists.value === null || p.TotalAssists > mostAssists.value) {
-					mostAssists.name = p.Player.Gamertag;
+					mostAssists.names = [p.Player.Gamertag];
 					mostAssists.value = p.TotalAssists;
 				}
+				if (p.TotalAssists === mostAssists.value) {
+					mostAssists.names.push(p.Player.Gamertag);
+				}
+				// check if user has least deaths
 				if (leastDeaths.value === null || p.TotalDeaths < leastDeaths.value) {
-					leastDeaths.name = p.Player.Gamertag;
+					leastDeaths.names = [p.Player.Gamertag];
 					leastDeaths.value = p.TotalDeaths;
+				}
+				if (p.TotalDeaths === leastDeaths.value) {
+					leastDeaths.names.push(p.Player.Gamertag);
 				}
 
 				if (p.TeamId === friendlyTeamId) {
@@ -72,9 +84,17 @@ module.exports.getCarnageReportData = function (partialUrl, friendlyTeamId, cb) 
 				}
 			});
 
-			if (mostKills.name && mostKills.name === mostAssists.name === leastDeaths.name) {
-				users[mostKills.name].mostMostLeasts = 1;
-			}
+			mostKills.names.forEach(tag => {
+				users[tag].mostKills = 1;
+			});
+
+			mostAssists.names.forEach(tag => {
+				users[tag].mostAssists = 1;
+			});
+
+			leastDeaths.names.forEach(tag => {
+				users[tag].leastDeaths = 1;
+			});
 
 			body.TeamStats.forEach(t => {
 				if (t.TeamId === friendlyTeamId) {
@@ -146,7 +166,9 @@ function processPlayerStats (p, friendlyTeamId) {
 		doubleKills: 0,
 		tripleKills: 0,
 		overkillsAndBeyond: 0,
-		mostMostLeasts: 0,
+		mostKills: 0,
+		mostAssists: 0,
+		leastDeaths: 0,
 
 		// these will manually incremented during the events processing
 		pWeaponPickups: 0,
@@ -185,6 +207,9 @@ function processPlayerStats (p, friendlyTeamId) {
 		longestMagnumKill: 0,
 		longestArKill: 0,
 		longestRifleKill: 0,
+		doubleKillDeaths: 0,
+		tripleKillDeaths: 0,
+		overkillAndBeyondDeaths: 0,
 	};
 
 	p.WeaponStats.forEach(w => {
@@ -230,6 +255,10 @@ function processPlayerStats (p, friendlyTeamId) {
 		formattedStats.medalCount += m.Count;
 		if (config.isPerfectMedal(m.MedalId)) {
 			formattedStats.perfectKills += m.Count;
+			return;
+		}
+		if (config.isOverKillOrBeyond(m.MedalId)) {
+			formattedStats.overkillsAndBeyond += m.Count;
 			return;
 		}
 		switch (config.get('medal', m.MedalId)) {
@@ -286,15 +315,6 @@ function processPlayerStats (p, friendlyTeamId) {
 				break;
 			case 'Triple Kill':
 				formattedStats.tripleKills += m.Count;
-				break;
-			case 'Overkill':
-			case 'Killtacular':
-			case 'Killtrocity':
-			case 'Killamanjaro':
-			case 'Killtastrophe':
-			case 'Killpocalypse':
-			case 'Killionaire':
-				formattedStats.overkillsAndBeyond += m.Count;
 				break;
 		}
 	});

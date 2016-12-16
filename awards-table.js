@@ -126,15 +126,7 @@ let allAwards = {
 		},
 		multikillMartin: {
 			name: 'Multikill Martin',
-			description: '(Double kills * 1) + (Triple Kills * 2) + (OverkillsAndBeyond * 3)',
-			gamertags: {
-				entities: {},
-				result: []
-			}
-		},
-		mostMostMostLeasts: {
-			name: 'Most Most-Most-Leasts',
-			description: 'Number of games with most kills, most assists, leasts deaths',
+			description: '(Double kills * 1) + (Triple Kills * 3) + (OverkillsAndBeyond * 5)',
 			gamertags: {
 				entities: {},
 				result: []
@@ -166,12 +158,28 @@ let allAwards = {
 		},
 		mrDowntown: {
 			name: 'Mr Downtown',
-			description: 'Longest distance magnum kill',
+			description: 'Longest distance magnum/flagnum kill',
 			gamertags: {
 				entities: {},
 				result: []
 			}
 		},
+		considerHiding: {
+			name: 'Consider Hiding',
+			description: 'doubleKillDeaths + (3 * tripleKillDeaths) + (5 * overkillAndBeyondDeaths)',
+			gamertags: {
+				entities: {},
+				result: []
+			}
+		},
+		categoryKing: {
+			name: 'Category King',
+			description: '(Games With Most Kills) + (Games With Most Assists) + (Games With Least Deaths)',
+			gamertags: {
+				entities: {},
+				result: []
+			}
+		}
 	}
 };
 
@@ -417,19 +425,6 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 			allAwards.entities.multikillMartin.gamertags.entities[friendlyTag].tripleKills += m.users[friendlyTag].tripleKills;
 			allAwards.entities.multikillMartin.gamertags.entities[friendlyTag].overkillsAndBeyond += m.users[friendlyTag].overkillsAndBeyond;
 
-			//  mostMostMostLeasts
-			if (!allAwards.entities.mostMostMostLeasts.gamertags.entities[friendlyTag]) {
-				allAwards.entities.mostMostMostLeasts.gamertags.entities[friendlyTag] = {
-					name: friendlyTag,
-					mostMostLeasts: 0,
-					get value () {
-						return this.mostMostLeasts;
-					}
-				};
-				allAwards.entities.mostMostMostLeasts.gamertags.result.push(friendlyTag);
-			}
-			allAwards.entities.mostMostMostLeasts.gamertags.entities[friendlyTag].mostMostLeasts += m.users[friendlyTag].mostMostLeasts;
-
 			//  mostOutnumbered
 			if (!allAwards.entities.mostOutnumbered.gamertags.entities[friendlyTag]) {
 				allAwards.entities.mostOutnumbered.gamertags.entities[friendlyTag] = {
@@ -514,6 +509,47 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 				allAwards.entities.mrDowntown.gamertags.result.push(friendlyTag);
 			}
 			allAwards.entities.mrDowntown.gamertags.entities[friendlyTag].longestMagnumKill = Math.max(m.users[friendlyTag].longestMagnumKill || 0, allAwards.entities.mrDowntown.gamertags.entities[friendlyTag].longestMagnumKill);
+
+			//  considerHiding
+			if (!allAwards.entities.considerHiding.gamertags.entities[friendlyTag]) {
+				allAwards.entities.considerHiding.gamertags.entities[friendlyTag] = {
+					name: friendlyTag,
+					doubleKillDeaths: 0,
+					tripleKillDeaths: 0,
+					overkillAndBeyondDeaths: 0,
+					get longform () {
+						return `(${this.doubleKillDeaths} + (3 * ${this.tripleKillDeaths}) + (5 * ${this.overkillAndBeyondDeaths}))`;
+					},
+					get value () {
+						return this.doubleKillDeaths + (3 * this.tripleKillDeaths) + (5 * this.overkillAndBeyondDeaths);
+					}
+				};
+				allAwards.entities.considerHiding.gamertags.result.push(friendlyTag);
+			}
+			allAwards.entities.considerHiding.gamertags.entities[friendlyTag].doubleKillDeaths += m.users[friendlyTag].doubleKillDeaths;
+			allAwards.entities.considerHiding.gamertags.entities[friendlyTag].tripleKillDeaths += m.users[friendlyTag].tripleKillDeaths;
+			allAwards.entities.considerHiding.gamertags.entities[friendlyTag].overkillAndBeyondDeaths += m.users[friendlyTag].overkillAndBeyondDeaths;
+
+			//  categoryKing
+			if (!allAwards.entities.categoryKing.gamertags.entities[friendlyTag]) {
+				allAwards.entities.categoryKing.gamertags.entities[friendlyTag] = {
+					name: friendlyTag,
+					mostKills: 0,
+					mostAssists: 0,
+					leastDeaths: 0,
+					get longform () {
+						return `(${this.mostKills} + ${this.mostAssists} + ${this.leastDeaths})`;
+					},
+					get value () {
+						return this.mostKills + this.mostAssists + this.leastDeaths;
+					}
+				};
+				allAwards.entities.categoryKing.gamertags.result.push(friendlyTag);
+			}
+			allAwards.entities.categoryKing.gamertags.entities[friendlyTag].mostKills += m.users[friendlyTag].mostKills;
+			allAwards.entities.categoryKing.gamertags.entities[friendlyTag].mostAssists += m.users[friendlyTag].mostAssists;
+			allAwards.entities.categoryKing.gamertags.entities[friendlyTag].leastDeaths += m.users[friendlyTag].leastDeaths;
+
 		}); // done iterating through teammates
 	}); // done iterating through matches
 

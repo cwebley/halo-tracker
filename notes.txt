@@ -1,5 +1,11 @@
 todo:
-last second splinter kills
+put 30 sec limit on TOs
+don't allow pad pickups to be TOs
+mr downtown award include flagnum
+add overall accuracy
+figure out whats going on with the victim-less deaths with disposition = 1
+count reversal perfects as more than 1 in Dont Challenge Me
+
 distance traveled by connecting the dots between kills and deaths. maybe avg distance between kills is worthwhile.
 find the start of the session based on time, not based on simply finding a custom game
 

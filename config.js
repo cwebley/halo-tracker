@@ -19,22 +19,24 @@ module.exports.getMatchEventsUrl = function (matchId) {
 
 
 // dictionaries of resourceId -> resourceName
-const userIndex = {};
-const mapIndex = {};
-const medalIndex = {};
-const impulseIndex = {};
-const weaponIndex = {};
-const gametypeIndex = {};
+module.exports.userIndex = {};
+let mapIndex = {};
+let medalIndex = {};
+let impulseIndex = {};
+let weaponIndex = {};
+let gametypeIndex = {};
 
 // for pWeapons and rifles for consistency and ease of lookup
 // weaponId -> true
-const powerWeaponIds = {};
-const rifleIds = {};
-const autoIds = {};
+let powerWeaponIds = {};
+let rifleIds = {};
+let autoIds = {};
 
 // there are several medals that share the name 'Perfect Kill'
 // here we keep them in one dictionary
-const perfectKillIds = {};
+let perfectKillIds = {};
+
+let overkillAndBeyondIds = {};
 
 const powerWeaponNames = [
 	'Rocket Launcher',
@@ -79,6 +81,9 @@ module.exports.set = function (type, id, name) {
 				perfectKillIds[id] = true;
 				break;
 			}
+			if (name === 'Overkill' || name === 'Killtacular' || name === 'Killtrocity' || name === 'Killtastrophe' || name === 'Killpocalypse' || name === 'Killionaire') {
+				overkillAndBeyondIds[id] = true;
+			}
 			medalIndex[id] = name;
 			break;
 		case 'impulse':
@@ -113,6 +118,9 @@ module.exports.isAuto = function (id) {
 }
 module.exports.isPerfectMedal = function (id) {
 	return !!perfectKillIds[id];
+}
+module.exports.isOverKillOrBeyond = function (id) {
+	return !!overkillAndBeyondIds[id];
 }
 
 module.exports.get = function (type, key) {

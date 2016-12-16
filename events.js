@@ -78,7 +78,6 @@ function processEventData (events, carnageData) {
 					}
 					const medalOrDropEvent = events[medalOrDropEventIndex];
 
-					// if we found a medal and it's a Perfect Kill, increment the Victim's perfectDeaths
 					if (medalOrDropEvent.EventName === 'Medal' && medalOrDropEvent.Player.Gamertag === originalEvent.Killer.Gamertag) {
 						if (config.isPerfectMedal(medalOrDropEvent.MedalId)) {
 							// the killer was awarded a perfect kill (already handled in the carnage report)
@@ -98,6 +97,15 @@ function processEventData (events, carnageData) {
 							// the killer was awarded a snapshot
 							// increment the victim's noScopeDeaths
 							carnageData.users[originalEvent.Victim.Gamertag].noScopeDeaths++;
+						}
+						if (config.get('medal', medalOrDropEvent.MedalId) === 'Double Kill') {
+							carnageData.users[originalEvent.Victim.Gamertag].doubleKillDeaths++;
+						}
+						if (config.get('medal', medalOrDropEvent.MedalId) === 'Triple Kill') {
+							carnageData.users[originalEvent.Victim.Gamertag].tripleKillDeaths++;
+						}
+						if (config.isOverKillOrBeyond(medalOrDropEvent.MedalId)) {
+							carnageData.users[originalEvent.Victim.Gamertag].overkillAndBeyondDeaths++;
 						}
 					}
 
@@ -140,8 +148,11 @@ function processEventData (events, carnageData) {
 					carnageData.users[originalEvent.Victim.Gamertag].hydraDeaths++
 				}
 				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'Magnum') {
-
 					// died to a an enemy magnum
+					carnageData.users[originalEvent.Killer.Gamertag].longestMagnumKill = Math.max(carnageData.users[originalEvent.Killer.Gamertag].longestMagnumKill, killDistance);
+				}
+				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'Flagnum') {
+					// died to a an enemy flagnum
 					carnageData.users[originalEvent.Killer.Gamertag].longestMagnumKill = Math.max(carnageData.users[originalEvent.Killer.Gamertag].longestMagnumKill, killDistance);
 				}
 				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'Assault Rifle') {
