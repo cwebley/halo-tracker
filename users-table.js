@@ -68,9 +68,12 @@ module.exports.getUsersTable = function (allMatchData) {
 			if (i === matchCount - 1) {
 				// get start of session csr
 				if (!config.isRandomTeammate(friendlyTag, true)) {
-					usersOverall.entities[friendlyTag].startingCsr = m.users[friendlyTag].previousCsr.Csr;
-					// for the 'all' user, add up everyone's csr for an average calculated below. we'll need to add the randoms' average csr
-					usersOverall.entities.all.totalStartingCsr += m.users[friendlyTag].previousCsr.Csr;
+					// TODO something wrong with csr here in low rank matches
+					if (m.users[friendlyTag].previousCsr) {
+						usersOverall.entities[friendlyTag].startingCsr = m.users[friendlyTag].previousCsr.Csr;
+						// for the 'all' user, add up everyone's csr for an average calculated below. we'll need to add the randoms' average csr
+						usersOverall.entities.all.totalStartingCsr += m.users[friendlyTag].previousCsr.Csr;
+					}
 				}
 			}
 

@@ -19,7 +19,8 @@ module.exports.getMatchEventsUrl = function (matchId) {
 
 
 // dictionaries of resourceId -> resourceName
-module.exports.userIndex = {};
+let userIndex = {};
+module.exports.userIndex = userIndex;
 let mapIndex = {};
 let medalIndex = {};
 let impulseIndex = {};
