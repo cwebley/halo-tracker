@@ -1,12 +1,16 @@
 todo:
 put 30 sec limit on TOs
 don't allow pad pickups to be TOs
-mr downtown award include flagnum
 add overall accuracy
 figure out whats going on with the victim-less deaths with disposition = 1
 count reversal perfects as more than 1 in Dont Challenge Me
 
 distance traveled by connecting the dots between kills and deaths. maybe avg distance between kills is worthwhile.
+		// flag pull impulse
+		// death of flag carrier location or flag captured
+
+		// flag pickup impulse  (assume its where the previous guy died)
+		// death of flag carrier location or flag catpured
 find the start of the session based on time, not based on simply finding a custom game
 
 might be worthwhile to track turnovered weapons and see if they resulted in kills
@@ -14,6 +18,7 @@ might be worthwhile to track turnovered weapons and see if they resulted in kill
 awards:
 	most frantic (highest average distance traveled available)
 	most close range weapon kills?
+	preferred rifle stat with rifle name
 
 	most sniped
 	most rocketed
@@ -21,7 +26,7 @@ awards:
 	Pro Hunter (best pvp against high csr guys)
 	Noob hunter (best pvp against low csr guys)
 	where the ammo? picked up the least weapons
-	Plato/Cornucopia. kill with the biggest variety of weapons on average
+	Plato/Cornucopia. kill with the biggest variety of weapons on average and top 3 or each or something
 	pistol drops for rifle or ar drops for rifle?
 
 	most improved: save data from previous session in a file and point to it or something

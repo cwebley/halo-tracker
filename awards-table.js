@@ -179,6 +179,14 @@ let allAwards = {
 				entities: {},
 				result: []
 			}
+		},
+		riflePurist: {
+			name: 'Rifle Purist',
+			description: 'Highest fraction of total kills with a one rifle',
+			gamertags: {
+				entities: {},
+				result: []
+			}
 		}
 	}
 };
@@ -550,6 +558,55 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 			allAwards.entities.categoryKing.gamertags.entities[friendlyTag].mostAssists += m.users[friendlyTag].mostAssists;
 			allAwards.entities.categoryKing.gamertags.entities[friendlyTag].leastDeaths += m.users[friendlyTag].leastDeaths;
 
+			//  riflePurist
+			if (!allAwards.entities.riflePurist.gamertags.entities[friendlyTag]) {
+				allAwards.entities.riflePurist.gamertags.entities[friendlyTag] = {
+					name: friendlyTag,
+					kills: 0,
+					brKills: 0,
+					dmrKills: 0,
+					lrKills: 0,
+					carbineKills: 0,
+					get brData () {
+						return {
+							name: 'br',
+							value: Math.round(100 * this.brKills / this.kills) / 100,
+						}
+					},
+					get dmrData () {
+						return {
+							name: 'dmr',
+							value: Math.round(100 * this.dmrKills / this.kills) / 100,
+						}
+					},
+					get lrData () {
+						return {
+							name: 'lr',
+							value: Math.round(100 * this.lrKills / this.kills) / 100,
+						}
+					},
+					get carbineData () {
+						return {
+							name: 'c',
+							value: Math.round(100 * this.carbineKills / this.kills) / 100,
+						}
+					},
+					get longform () {
+						const sortedData = [this.brData, this.dmrData, this.lrData, this.carbineData].sort((a, b) => b.value - a.value);
+							return `(${sortedData.map(d => `${d.name}: ${d.value}`).join(', ')}`
+					},
+					get value () {
+						return Math.round(100 * Math.max(this.brKills, this.dmrKills, this.lrKills, this.carbineKills) / this.kills) / 100;
+					}
+				};
+				allAwards.entities.riflePurist.gamertags.result.push(friendlyTag);
+			}
+			allAwards.entities.riflePurist.gamertags.entities[friendlyTag].kills += m.users[friendlyTag].kills;
+			allAwards.entities.riflePurist.gamertags.entities[friendlyTag].brKills += m.users[friendlyTag].brKills;
+			allAwards.entities.riflePurist.gamertags.entities[friendlyTag].dmrKills += m.users[friendlyTag].dmrKills;
+			allAwards.entities.riflePurist.gamertags.entities[friendlyTag].lrKills += m.users[friendlyTag].lrKills;
+			allAwards.entities.riflePurist.gamertags.entities[friendlyTag].carbineKills += m.users[friendlyTag].carbineKills;
+
 		}); // done iterating through teammates
 	}); // done iterating through matches
 
@@ -633,7 +690,7 @@ module.exports.getAwardsTable = function (allMatchData, usersTable) {
 		});
 		// if first place is a tie, dont include the award
 		if (award.gamertags.entities[award.gamertags.result[0]].value === award.gamertags.entities[award.gamertags.result[1]].value) {
-			return;
+			// return;
 		}
 
 		prettyTable.push([

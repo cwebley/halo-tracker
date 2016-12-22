@@ -143,19 +143,33 @@ function processEventData (events, carnageData) {
 					// died to a an enemy auto
 					carnageData.users[originalEvent.Victim.Gamertag].autoDeaths++
 				}
-				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'Hydra Launcher') {
-					// died to a an enemy hydra
-					carnageData.users[originalEvent.Victim.Gamertag].hydraDeaths++
+				const killerWeaponName = config.get('weapon', originalEvent.KillerWeaponStockId);
+
+				if (killerWeaponName === 'Battle Rifle') {
+					carnageData.users[originalEvent.Victim.Gamertag].brDeaths++
+					carnageData.users[originalEvent.Killer.Gamertag].brKills++
 				}
-				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'Magnum') {
+				if (killerWeaponName === 'Carbine') {
+					carnageData.users[originalEvent.Victim.Gamertag].carbineDeaths++
+					carnageData.users[originalEvent.Killer.Gamertag].carbineKills++
+				}
+				if (killerWeaponName === 'LightRifle') {
+					carnageData.users[originalEvent.Victim.Gamertag].lrDeaths++
+					carnageData.users[originalEvent.Killer.Gamertag].lrKills++
+				}
+				if (killerWeaponName === 'LightRifle') {
+					carnageData.users[originalEvent.Victim.Gamertag].lrDeaths++
+					carnageData.users[originalEvent.Killer.Gamertag].lrKills++
+				}
+				if (killerWeaponName === 'DMR') {
+					carnageData.users[originalEvent.Victim.Gamertag].dmrDeaths++
+					carnageData.users[originalEvent.Killer.Gamertag].dmrKills++
+				}
+				if (killerWeaponName === 'Magnum' || killerWeaponName === 'Flagnum') {
 					// died to a an enemy magnum
 					carnageData.users[originalEvent.Killer.Gamertag].longestMagnumKill = Math.max(carnageData.users[originalEvent.Killer.Gamertag].longestMagnumKill, killDistance);
 				}
-				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'Flagnum') {
-					// died to a an enemy flagnum
-					carnageData.users[originalEvent.Killer.Gamertag].longestMagnumKill = Math.max(carnageData.users[originalEvent.Killer.Gamertag].longestMagnumKill, killDistance);
-				}
-				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'Assault Rifle') {
+				if (killerWeaponName === 'Assault Rifle') {
 					// died to a an enemy AR
 					carnageData.users[originalEvent.Killer.Gamertag].longestArKill = Math.max(carnageData.users[originalEvent.Killer.Gamertag].longestArKill, killDistance);
 				}
@@ -163,13 +177,13 @@ function processEventData (events, carnageData) {
 					// died to a an enemy rifle
 					carnageData.users[originalEvent.Killer.Gamertag].longestRifleKill = Math.max(carnageData.users[originalEvent.Killer.Gamertag].longestRifleKill, killDistance);
 				}
-				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'SPLINTER GRENADE') {
+				if (killerWeaponName === 'SPLINTER GRENADE') {
 					// died to a an enemy splinter
 					carnageData.users[originalEvent.Victim.Gamertag].splinterDeaths++
 					// killed an enemy with a splinter
 					carnageData.users[originalEvent.Killer.Gamertag].splinterKills++
 				}
-				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'Environmental Explosives') {
+				if (killerWeaponName === 'Environmental Explosives') {
 					// died to a barrel or something. there isn't always a victim which is strange but whatever.
 					if (originalEvent.Victim) {
 						carnageData.users[originalEvent.Victim.Gamertag].environmentalDeaths++;
@@ -177,7 +191,7 @@ function processEventData (events, carnageData) {
 					// killed an enemy by shooting a barrel or something
 					carnageData.users[originalEvent.Killer.Gamertag].environmentalKills++;
 				}
-				if (config.get('weapon', originalEvent.KillerWeaponStockId) === 'Spartan') {
+				if (killerWeaponName === 'Spartan') {
 					if (originalEvent.IsShoulderBash) {
 						carnageData.users[originalEvent.Victim.Gamertag].spartanChargeDeaths++;
 						carnageData.users[originalEvent.Killer.Gamertag].spartanChargeKills++;
@@ -241,8 +255,10 @@ function processEventData (events, carnageData) {
 								// finally, if the drop was caused by a death, and the killer was an enemy, credit the killer with a forced TO
 								for (let deathEventIndex = originalEventIndex + 1; deathEventIndex < dropEventIndex; deathEventIndex++) {
 									const deathEvent = events[deathEventIndex];
-									if (deathEvent.EventName === 'Death' && deathEvent.DeathDisposition === 1 && deathEvent.Victim.Gamertag === originalEvent.Player.Gamertag) {
-										carnageData.users[deathEvent.Killer.Gamertag].forcedTurnovers++;
+									if (deathEvent.Victim) {
+										if (deathEvent.EventName === 'Death' && deathEvent.DeathDisposition === 1 && deathEvent.Victim.Gamertag === originalEvent.Player.Gamertag) {
+											carnageData.users[deathEvent.Killer.Gamertag].forcedTurnovers++;
+										}
 									}
 								}
 							}

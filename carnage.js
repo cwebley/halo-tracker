@@ -210,6 +210,14 @@ function processPlayerStats (p, friendlyTeamId) {
 		doubleKillDeaths: 0,
 		tripleKillDeaths: 0,
 		overkillAndBeyondDeaths: 0,
+		brKills: 0,
+		brDeaths: 0,
+		dmrKills: 0,
+		dmrDeaths: 0,
+		lrKills: 0,
+		lrDeaths: 0,
+		carbineKills: 0,
+		carbineDeaths: 0,
 	};
 
 	p.WeaponStats.forEach(w => {
