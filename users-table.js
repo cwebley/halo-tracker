@@ -57,7 +57,7 @@ module.exports.getUsersTable = function (allMatchData) {
 			// this game is the last game of the session
 			if (i === 0) {
 				// get end of session csr for the people we care about
-				if (!config.isRandomTeammate(friendlyTag, true)) {
+				if (!config.isRandomTeammate(friendlyTag, true) && m.users[friendlyTag].currentCsr) {
 					usersOverall.entities[friendlyTag].endingCsr = m.users[friendlyTag].currentCsr.Csr;
 					// for the 'all' user, add up everyone's csr for an average calculated below. we'll need to add the randoms' average csr
 					usersOverall.entities.all.totalEndingCsr += m.users[friendlyTag].currentCsr.Csr;
@@ -67,7 +67,7 @@ module.exports.getUsersTable = function (allMatchData) {
 			// this is the first game of the session
 			if (i === matchCount - 1) {
 				// get start of session csr
-				if (!config.isRandomTeammate(friendlyTag, true)) {
+				if (!config.isRandomTeammate(friendlyTag, true) && m.users[friendlyTag].previousCsr) {
 					// TODO something wrong with csr here in low rank matches
 					if (m.users[friendlyTag].previousCsr) {
 						usersOverall.entities[friendlyTag].startingCsr = m.users[friendlyTag].previousCsr.Csr;

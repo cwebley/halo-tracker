@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run start-moo",
-    "start-moo": "node index.js 'The Furious Moo' 'WWMJPD' 'I chan I' 'TFA Ch3ckMate' 'TeeMore' 'Victory is BACK'"
+    "start-moo": "node index.js 'The Furious Moo' 'WWMJPD' 'I chan I' 'TFA Ch3ckMate' 'TeeMore' 'Victory is BACK'",
+	"victory": "node index.js 'Victory is BACK' 'AC Ninja Royale' 'eL ToWn' 'TriPPPeY' --count 13 --allow-customs"
   },
   "author": "cwebley <cameron.webley@gmail.com>",
   "license": "MIT",

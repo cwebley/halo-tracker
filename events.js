@@ -24,6 +24,18 @@ module.exports.getEventData = function (matchId, carnageData, cb) {
 				return;
 			}
 
+			if (body.IsCompleteSetOfEvents === undefined) {
+				// sometimes body is not JSON, maybe a limitation of the request library when response size is huge
+				try {
+					body = JSON.parse(body);
+					console.log("BODY CONVERTED TO JSON!")
+				} catch(e) {
+					console.log("CANNOT PARSE JSON: ", e);
+					return cb(null, carnageData);
+				}
+			}
+			console.log("IS COMPLETE EVENTS: ", body.IsCompleteSetOfEvents);
+
 			cb(null, processEventData(body.GameEvents, carnageData));
 		});
 	});
@@ -36,6 +48,8 @@ function processEventData (events, carnageData) {
 		entities: {},
 		result: []
 	};
+
+	console.log("EVENTS!: ", events && events.length)
 	events.forEach((originalEvent, originalEventIndex) => {
 		if (originalEvent.EventName === 'Death') {
 			// Death Disposition? friendly = 0, hostile = 1, neutral = 2

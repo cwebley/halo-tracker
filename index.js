@@ -17,6 +17,7 @@ program
 	.version('1.0.0')
 	.option('-s, --skip [skip]', 'The number of games halo-tracker should skip before it begins looking for a session', parseInt)
 	.option('-c --count [count]', 'The number of games halo-tracker should include in this batch of stats', parseInt)
+	.option('-c --allow-customs [allowCustoms]', 'The number of games halo-tracker should include in this batch of stats', parseInt)
 	.parse(process.argv);
 
 program.args.forEach(gamertag => {
@@ -54,7 +55,8 @@ metadata.getMetadata((err, { maps, medals, impulses, weapons, gameTypes }) => {
 	matches.getMatches({
 		gamertag: program.args[0],
 		skip: program.skip || 0,
-		count: program.count
+		count: program.count,
+		allowCustoms: program.allowCustoms || false
 	}, (err, matchesData) => {
 		if (err) {
 			console.error(`Error fetching matches: ${err}`);
