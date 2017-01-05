@@ -49,7 +49,6 @@ function processEventData (events, carnageData) {
 		result: []
 	};
 
-	console.log("EVENTS!: ", events && events.length)
 	events.forEach((originalEvent, originalEventIndex) => {
 		if (originalEvent.EventName === 'Death') {
 			// Death Disposition? friendly = 0, hostile = 1, neutral = 2
@@ -79,7 +78,7 @@ function processEventData (events, carnageData) {
 					}
 				}
 				if (!originalEvent.Victim) {
-					console.log(" NO VICTIM FOR SOME REASON :", originalEvent);
+					carnageData.users[originalEvent.Killer.Gamertag].barrelDestroys++;
 					return;
 				}
 
@@ -231,7 +230,10 @@ function processEventData (events, carnageData) {
 			}
 			// suicide or betrayal
 			if (originalEvent.DeathDisposition === 0) {
-				carnageData.users[originalEvent.Killer.Gamertag].friendlyKills++;
+				if (originalEvent.Killer.Gamertag === 'Victory is BACK') {
+					console.log("FRIENDLY KILL. IS this a barrel or a suicide?", originalEvent);
+				}
+				carnageData.users[originalEvent.Killer.Gamertag].barrelDestroys++;
 			}
 			return;
 		}
